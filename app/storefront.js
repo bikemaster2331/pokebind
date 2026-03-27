@@ -44,9 +44,11 @@ function CartPanel({
   itemCount,
   subtotal,
   onAdd,
+  onCheckout,
   onDecrease,
   onRemove,
   onClose,
+  checkoutFeedback,
 }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -148,6 +150,19 @@ function CartPanel({
             <p className="mt-2 text-xs text-black">
               Shipping and payment fees can be calculated at checkout later.
             </p>
+
+            <button
+              type="button"
+              onClick={onCheckout}
+              className="mt-4 w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
+              disabled={itemCount === 0}
+            >
+              Checkout
+            </button>
+
+            {checkoutFeedback ? (
+              <p className="mt-3 text-xs font-medium text-black">{checkoutFeedback}</p>
+            ) : null}
           </div>
         </>
       )}
@@ -159,6 +174,7 @@ export default function Storefront({ cards }) {
   const [cart, setCart] = useState({})
   const [hasLoadedCart, setHasLoadedCart] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [checkoutFeedback, setCheckoutFeedback] = useState('')
 
   useEffect(() => {
     try {
@@ -185,6 +201,12 @@ export default function Storefront({ cards }) {
       console.error('Unable to save cart to storage.', error)
     }
   }, [cart, hasLoadedCart])
+
+  useEffect(() => {
+    if (checkoutFeedback) {
+      setCheckoutFeedback('')
+    }
+  }, [cart, checkoutFeedback])
 
   function updateQuantity(card, nextQuantity) {
     const cardId = String(card.id)
@@ -228,6 +250,14 @@ export default function Storefront({ cards }) {
         },
       }
     })
+  }
+
+  function handleCheckout() {
+    if (itemCount === 0) {
+      return
+    }
+
+    setCheckoutFeedback('Checkout button is ready. Next step is wiring it to a server checkout route.')
   }
 
   const cartItems = cards.reduce((items, card) => {
@@ -374,9 +404,11 @@ export default function Storefront({ cards }) {
               itemCount={itemCount}
               subtotal={subtotal}
               onAdd={addToCart}
+              onCheckout={handleCheckout}
               onDecrease={(card) => updateQuantity(card, card.quantity - 1)}
               onRemove={(card) => updateQuantity(card, 0)}
               onClose={() => setIsCartOpen(false)}
+              checkoutFeedback={checkoutFeedback}
             />
           </div>
         </div>
