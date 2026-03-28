@@ -33,11 +33,7 @@ function sanitizeCart(savedCart, cards) {
     const quantity = Math.min(Math.max(rawQuantity, 0), stock)
 
     if (quantity > 0) {
-      nextCart[id] = {
-        quantity,
-        price: card.price,
-        name: card.name,
-      }
+      nextCart[id] = { quantity }
     }
 
     return nextCart
