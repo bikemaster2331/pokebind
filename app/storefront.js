@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 const CART_STORAGE_KEY = 'pokevault-cart'
 
@@ -32,7 +33,11 @@ function sanitizeCart(savedCart, cards) {
     const quantity = Math.min(Math.max(rawQuantity, 0), stock)
 
     if (quantity > 0) {
-      nextCart[id] = { quantity }
+      nextCart[id] = {
+        quantity,
+        price: card.price,
+        name: card.name,
+      }
     }
 
     return nextCart
@@ -43,13 +48,22 @@ function CartPanel({
   cartItems,
   itemCount,
   subtotal,
+  isCheckingOut,
   onAdd,
   onCheckout,
   onDecrease,
   onRemove,
   onClose,
   checkoutFeedback,
+  checkoutFeedbackTone,
 }) {
+  const feedbackClassName =
+    checkoutFeedbackTone === 'error'
+      ? 'text-red-600'
+      : checkoutFeedbackTone === 'success'
+        ? 'text-green-700'
+        : 'text-black'
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -155,26 +169,83 @@ function CartPanel({
               type="button"
               onClick={onCheckout}
               className="mt-4 w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
-              disabled={itemCount === 0}
+              disabled={itemCount === 0 || isCheckingOut}
             >
-              Checkout
+              {isCheckingOut ? 'Processing...' : 'Checkout'}
             </button>
-
-            {checkoutFeedback ? (
-              <p className="mt-3 text-xs font-medium text-black">{checkoutFeedback}</p>
-            ) : null}
           </div>
         </>
       )}
+
+      {checkoutFeedback ? (
+        <p className={`mt-3 text-xs font-medium ${feedbackClassName}`}>{checkoutFeedback}</p>
+      ) : null}
     </div>
   )
 }
 
 export default function Storefront({ cards }) {
+  const router = useRouter()
   const [cart, setCart] = useState({})
   const [hasLoadedCart, setHasLoadedCart] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [checkoutFeedback, setCheckoutFeedback] = useState('')
+  const [checkoutFeedbackTone, setCheckoutFeedbackTone] = useState('idle')
+
+  function updateQuantity(card, nextQuantity) {
+    const cardId = String(card.id)
+    const stock = Number(card.stock_quantity ?? 0)
+
+    setCheckoutFeedback('')
+    setCheckoutFeedbackTone('idle')
+
+    setCart((currentCart) => {
+      if (stock < 1 || nextQuantity < 1) {
+        const nextCart = { ...currentCart }
+        delete nextCart[cardId]
+        return nextCart
+      }
+
+      return {
+        ...currentCart,
+        [cardId]: {
+          quantity: Math.min(nextQuantity, stock),
+          price: card.price,
+          name: card.name,
+        },
+      }
+    })
+  }
+
+  function addToCart(card) {
+    const cardId = String(card.id)
+    const stock = Number(card.stock_quantity ?? 0)
+
+    if (stock < 1) {
+      return
+    }
+
+    setCheckoutFeedback('')
+    setCheckoutFeedbackTone('idle')
+
+    setCart((currentCart) => {
+      const currentQuantity = currentCart[cardId]?.quantity ?? 0
+
+      if (currentQuantity >= stock) {
+        return currentCart
+      }
+
+      return {
+        ...currentCart,
+        [cardId]: {
+          quantity: currentQuantity + 1,
+          price: card.price,
+          name: card.name,
+        },
+      }
+    })
+  }
 
   useEffect(() => {
     try {
@@ -202,62 +273,9 @@ export default function Storefront({ cards }) {
     }
   }, [cart, hasLoadedCart])
 
-  useEffect(() => {
-    if (checkoutFeedback) {
-      setCheckoutFeedback('')
-    }
-  }, [cart, checkoutFeedback])
-
-  function updateQuantity(card, nextQuantity) {
-    const cardId = String(card.id)
-    const stock = Number(card.stock_quantity ?? 0)
-
-    setCart((currentCart) => {
-      if (stock < 1 || nextQuantity < 1) {
-        const nextCart = { ...currentCart }
-        delete nextCart[cardId]
-        return nextCart
-      }
-
-      return {
-        ...currentCart,
-        [cardId]: {
-          quantity: Math.min(nextQuantity, stock),
-        },
-      }
-    })
-  }
-
-  function addToCart(card) {
-    const cardId = String(card.id)
-    const stock = Number(card.stock_quantity ?? 0)
-
-    if (stock < 1) {
-      return
-    }
-
-    setCart((currentCart) => {
-      const currentQuantity = currentCart[cardId]?.quantity ?? 0
-
-      if (currentQuantity >= stock) {
-        return currentCart
-      }
-
-      return {
-        ...currentCart,
-        [cardId]: {
-          quantity: currentQuantity + 1,
-        },
-      }
-    })
-  }
-
   function handleCheckout() {
-    if (itemCount === 0) {
-      return
-    }
-
-    setCheckoutFeedback('Checkout button is ready. Next step is wiring it to a server checkout route.')
+    if (itemCount === 0) return
+    router.push('/checkout')
   }
 
   const cartItems = cards.reduce((items, card) => {
@@ -382,7 +400,7 @@ export default function Storefront({ cards }) {
                       </button>
                     )}
 
-                    {!isOutOfStock && stock <= 3 ? (
+                    {!isOutOfStock && stock <= 10 ? (
                       <p className="mt-2 text-xs font-medium text-black">Only {stock} left!</p>
                     ) : null}
                   </div>
@@ -403,12 +421,14 @@ export default function Storefront({ cards }) {
               cartItems={cartItems}
               itemCount={itemCount}
               subtotal={subtotal}
+              isCheckingOut={isCheckingOut}
               onAdd={addToCart}
               onCheckout={handleCheckout}
               onDecrease={(card) => updateQuantity(card, card.quantity - 1)}
               onRemove={(card) => updateQuantity(card, 0)}
               onClose={() => setIsCartOpen(false)}
               checkoutFeedback={checkoutFeedback}
+              checkoutFeedbackTone={checkoutFeedbackTone}
             />
           </div>
         </div>
