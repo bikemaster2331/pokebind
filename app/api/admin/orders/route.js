@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendShippedNotification } from '../../email/receipt'
-import { createSupabaseServer as getServerClient } from '../../server'
+import { createSupabaseServer } from '../../../server'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,7 +8,7 @@ const supabase = createClient(
 )
 
 async function isAdmin() {
-    const serverSupabase = await getServerClient()
+    const serverSupabase = await createSupabaseServer()
     const { data } = await serverSupabase.auth.getUser()
     return data?.user?.email === process.env.ADMIN_EMAIL
 }
