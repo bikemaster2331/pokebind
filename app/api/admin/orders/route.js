@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { sendShippedNotification } from '../../email/receipt'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -15,6 +16,20 @@ export async function PATCH(request) {
 
     if (error) {
         return Response.json({ error: error.message }, { status: 500 })
+    }
+
+    if (body.status === 'shipped') {
+        try {
+            const { data: order } = await supabase
+                .from('orders')
+                .select('id, guest_name, guest_email, shipping_address')
+                .eq('id', body.id)
+                .single()
+
+            await sendShippedNotification({ order })
+        } catch (emailError) {
+            console.error('Failed to send shipped notification.', emailError)
+        }
     }
 
     return Response.json({ message: 'Order updated.' })
