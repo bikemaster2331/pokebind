@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { createSupabaseServer } from '../../server'
+import { createSupabaseServer } from '../../../server'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
