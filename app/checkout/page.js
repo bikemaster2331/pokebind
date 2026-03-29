@@ -113,7 +113,7 @@ export default function CheckoutPage() {
                 onChange={handleChange}
                 required
                 placeholder="Ash Ketchum"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
               />
             </div>
 
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
                 onChange={handleChange}
                 required
                 placeholder="ash@pokemon.com"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
               />
             </div>
 
@@ -143,7 +143,7 @@ export default function CheckoutPage() {
                 required
                 rows={3}
                 placeholder="House no., Street, Barangay, City, Province"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black resize-none"
+                className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black resize-none"
               />
             </div>
 
