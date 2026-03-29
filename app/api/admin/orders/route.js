@@ -1,12 +1,23 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendShippedNotification } from '../../email/receipt'
+import { createSupabaseServer as getServerClient } from '../../server'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
+async function isAdmin() {
+    const serverSupabase = await getServerClient()
+    const { data } = await serverSupabase.auth.getUser()
+    return data?.user?.email === process.env.ADMIN_EMAIL
+}
+
 export async function PATCH(request) {
+    if (!(await isAdmin())) {
+        return Response.json({ error: 'Unauthorized.' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     const { error } = await supabase
