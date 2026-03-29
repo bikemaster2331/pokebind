@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { sendOrderReceipt } from '../email/receipt'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey =
@@ -159,6 +160,33 @@ export async function POST(request) {
       }
 
       updatedCards.push(updatedCard)
+    }
+
+    try {
+      const { data: savedItems } = await supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', order.id)
+
+      const { data: savedCards } = await supabase
+        .from('pokebox')
+        .select('id, name')
+        .in('id', savedItems.map((i) => i.card_id))
+
+      await sendOrderReceipt({
+        order: {
+          id: order.id,
+          guest_name: guestName,
+          guest_email: guestEmail,
+          shipping_address: shippingAddress,
+          total,
+          shipping_fee: shippingFee,
+        },
+        items: savedItems,
+        cards: savedCards,
+      })
+    } catch (emailError) {
+      console.error('Failed to send receipt email.', emailError)
     }
 
     return Response.json({
