@@ -1,11 +1,22 @@
 import { createClient } from '@supabase/supabase-js'
+import { createSupabaseServer } from '../../server'
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
+async function isAdmin() {
+    const serverSupabase = await createSupabaseServer()
+    const { data } = await serverSupabase.auth.getUser()
+    return data?.user?.email === process.env.ADMIN_EMAIL
+}
+
 export async function POST(request) {
+    if (!(await isAdmin())) {
+        return Response.json({ error: 'Unauthorized.' }, { status: 401 })
+    }
+
     const body = await request.json()
 
     const { error } = await supabase.from('pokebox').insert({
@@ -27,6 +38,10 @@ export async function POST(request) {
 }
 
 export async function PATCH(request) {
+    if (!(await isAdmin())) {
+        return Response.json({ error: 'Unauthorized.' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { id, ...updates } = body
 
