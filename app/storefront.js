@@ -15,257 +15,155 @@ function formatCurrency(value) {
 }
 
 function sanitizeCart(savedCart, cards) {
-  if (!savedCart || typeof savedCart !== 'object') {
-    return {}
-  }
-
+  if (!savedCart || typeof savedCart !== 'object') return {}
   const cardLookup = new Map(cards.map((card) => [String(card.id), card]))
-
   return Object.entries(savedCart).reduce((nextCart, [id, item]) => {
     const card = cardLookup.get(String(id))
     const rawQuantity = Number(item?.quantity ?? item)
     const stock = Number(card?.stock_quantity ?? 0)
-
-    if (!card || !Number.isFinite(rawQuantity) || stock < 1) {
-      return nextCart
-    }
-
+    if (!card || !Number.isFinite(rawQuantity) || stock < 1) return nextCart
     const quantity = Math.min(Math.max(rawQuantity, 0), stock)
-
-    if (quantity > 0) {
-      nextCart[id] = { quantity }
-    }
-
+    if (quantity > 0) nextCart[id] = { quantity, price: card.price, name: card.name }
     return nextCart
   }, {})
 }
 
-function CartPanel({
-  cartItems,
-  itemCount,
-  subtotal,
-  isCheckingOut,
-  onAdd,
-  onCheckout,
-  onDecrease,
-  onRemove,
-  onClose,
-  checkoutFeedback,
-  checkoutFeedbackTone,
-}) {
-  const feedbackClassName =
-    checkoutFeedbackTone === 'error'
-      ? 'text-red-600'
-      : checkoutFeedbackTone === 'success'
-        ? 'text-green-700'
-        : 'text-black'
+// Removed typeEmoji since the "type" column was deleted from Supabase.
 
+function CartPanel({ cartItems, itemCount, subtotal, onAdd, onCheckout, onDecrease, onRemove, onClose, checkoutFeedback, checkoutFeedbackTone }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
+    <div className="flex flex-col h-full bg-[#0C0C0C]">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-[#1e1e1e]">
         <div>
-          <h3 className="text-lg font-semibold text-black">Your cart</h3>
-          <p className="text-sm text-black">
-            {itemCount === 0
-              ? 'No items yet'
-              : `${itemCount} item${itemCount === 1 ? '' : 's'} selected`}
+          <h3 className="font-display text-xl text-[#e0d8c8]">Your cart</h3>
+          <p className="text-xs text-[#444] mt-0.5 tracking-widest uppercase">
+            {itemCount === 0 ? 'Empty' : `${itemCount} item${itemCount === 1 ? '' : 's'}`}
           </p>
         </div>
-        {onClose ? (
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-black hover:bg-gray-50"
-          >
-            Close
-          </button>
-        ) : null}
+        <button onClick={onClose} className="text-[#444] hover:text-[#C9A844] text-xs tracking-widest uppercase transition-colors">
+          Close
+        </button>
       </div>
 
-      {cartItems.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-black">
-          Add a card to start building your order.
-        </div>
-      ) : (
-        <>
-          <div className="mt-4 space-y-3">
-            {cartItems.map((item) => {
-              const stock = Number(item.stock_quantity ?? 0)
-
-              return (
-                <div key={item.id} className="rounded-xl border border-gray-200 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-black">
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-black">
-                        {item.set_name} · {item.condition}
-                      </p>
-                      <p className="text-xs text-black">
-                        {formatCurrency(item.price)} each
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => onRemove(item)}
-                      className="text-xs font-medium text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+        {cartItems.length === 0 ? (
+          <div className="border border-dashed border-[#1e1e1e] rounded-xl p-8 text-center mt-8">
+            <p className="text-[#333] text-sm">Your cart is empty</p>
+            <p className="text-[#222] text-xs mt-1">Add cards to begin</p>
+          </div>
+        ) : (
+          cartItems.map((item) => {
+            const stock = Number(item.stock_quantity ?? 0)
+            return (
+              <div key={item.id} className="border border-[#1e1e1e] rounded-xl p-4 bg-[#111]">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="min-w-0">
+                    <p className="font-display text-[#e0d8c8] text-base truncate">{item.name}</p>
+                    <p className="text-xs text-[#444] mt-0.5">{item.set_name}</p>
+                    <p className="text-xs text-[#C9A844] mt-1">{formatCurrency(item.price)} each</p>
                   </div>
-
-                  <div className="mt-3 flex items-center justify-between gap-3">
-                    <div className="inline-flex items-center rounded-lg border border-gray-200">
-                      <button
-                        type="button"
-                        onClick={() => onDecrease(item)}
-                        className="px-3 py-1.5 text-sm text-black hover:bg-gray-50"
-                        aria-label={`Decrease quantity for ${item.name}`}
-                      >
-                        -
-                      </button>
-                      <span className="min-w-10 text-center text-sm font-medium text-black">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => onAdd(item)}
-                        disabled={item.quantity >= stock}
-                        className="px-3 py-1.5 text-sm text-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:text-black/40 disabled:hover:bg-transparent"
-                        aria-label={`Increase quantity for ${item.name}`}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <p className="text-sm font-semibold text-black">
-                      {formatCurrency(item.lineTotal)}
-                    </p>
-                  </div>
+                  <button onClick={() => onRemove(item)} className="text-xs text-[#333] hover:text-red-500 transition-colors shrink-0">
+                    Remove
+                  </button>
                 </div>
-              )
-            })}
-          </div>
+                <div className="flex items-center justify-between mt-3">
+                  <div className="inline-flex items-center border border-[#2a2a2a] rounded-lg overflow-hidden">
+                    <button onClick={() => onDecrease(item)} className="px-3 py-1.5 text-sm text-[#666] hover:text-[#C9A844] hover:bg-[#161616] transition-colors">−</button>
+                    <span className="min-w-10 text-center text-sm text-[#e0d8c8]">{item.quantity}</span>
+                    <button onClick={() => onAdd(item)} disabled={item.quantity >= stock} className="px-3 py-1.5 text-sm text-[#666] hover:text-[#C9A844] hover:bg-[#161616] transition-colors disabled:opacity-20 disabled:cursor-not-allowed">+</button>
+                  </div>
+                  <p className="font-display text-[#C9A844] text-base">{formatCurrency(item.lineTotal)}</p>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
 
-          <div className="mt-4 rounded-xl bg-gray-50 p-4">
-            <div className="flex items-center justify-between text-sm text-black">
-              <span>Items</span>
-              <span>{itemCount}</span>
-            </div>
-            <div className="mt-2 flex items-center justify-between font-semibold text-black">
-              <span>Subtotal</span>
-              <span>{formatCurrency(subtotal)}</span>
-            </div>
-            <p className="mt-2 text-xs text-black">
-              Shipping and payment fees can be calculated at checkout later.
+      {cartItems.length > 0 && (
+        <div className="px-6 py-5 border-t border-[#1e1e1e]">
+          <div className="flex justify-between text-xs text-[#444] mb-1">
+            <span className="tracking-widest uppercase">Subtotal</span>
+            <span>{formatCurrency(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-xs text-[#333] mb-4">
+            <span className="tracking-widest uppercase">Shipping</span>
+            <span>Calculated at checkout</span>
+          </div>
+          <button
+            onClick={onCheckout}
+            disabled={itemCount === 0}
+            className="w-full bg-[#C9A844] text-[#0C0C0C] font-medium py-3 rounded-xl text-sm tracking-wider hover:bg-[#b8973a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Proceed to checkout
+          </button>
+          {checkoutFeedback && (
+            <p className={`mt-3 text-xs text-center ${checkoutFeedbackTone === 'error' ? 'text-red-500' : 'text-green-500'}`}>
+              {checkoutFeedback}
             </p>
-
-            <button
-              type="button"
-              onClick={onCheckout}
-              className="mt-4 w-full rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
-              disabled={itemCount === 0 || isCheckingOut}
-            >
-              {isCheckingOut ? 'Processing...' : 'Checkout'}
-            </button>
-          </div>
-        </>
+          )}
+        </div>
       )}
-
-      {checkoutFeedback ? (
-        <p className={`mt-3 text-xs font-medium ${feedbackClassName}`}>{checkoutFeedback}</p>
-      ) : null}
     </div>
   )
 }
+
+// Removed RARITIES and CONDITIONS since these columns were deleted from Supabase.
 
 export default function Storefront({ cards }) {
   const router = useRouter()
   const [cart, setCart] = useState({})
   const [hasLoadedCart, setHasLoadedCart] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [checkoutFeedback, setCheckoutFeedback] = useState('')
   const [checkoutFeedbackTone, setCheckoutFeedbackTone] = useState('idle')
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState('default')
 
   function updateQuantity(card, nextQuantity) {
     const cardId = String(card.id)
     const stock = Number(card.stock_quantity ?? 0)
-
     setCheckoutFeedback('')
-    setCheckoutFeedbackTone('idle')
-
-    setCart((currentCart) => {
+    setCart((curr) => {
       if (stock < 1 || nextQuantity < 1) {
-        const nextCart = { ...currentCart }
-        delete nextCart[cardId]
-        return nextCart
+        const next = { ...curr }
+        delete next[cardId]
+        return next
       }
-
-      return {
-        ...currentCart,
-        [cardId]: {
-          quantity: Math.min(nextQuantity, stock),
-          price: card.price,
-          name: card.name,
-        },
-      }
+      return { ...curr, [cardId]: { quantity: Math.min(nextQuantity, stock), price: card.price, name: card.name } }
     })
   }
 
   function addToCart(card) {
     const cardId = String(card.id)
     const stock = Number(card.stock_quantity ?? 0)
-
-    if (stock < 1) {
-      return
-    }
-
+    if (stock < 1) return
     setCheckoutFeedback('')
-    setCheckoutFeedbackTone('idle')
-
-    setCart((currentCart) => {
-      const currentQuantity = currentCart[cardId]?.quantity ?? 0
-
-      if (currentQuantity >= stock) {
-        return currentCart
-      }
-
-      return {
-        ...currentCart,
-        [cardId]: {
-          quantity: currentQuantity + 1,
-          price: card.price,
-          name: card.name,
-        },
-      }
+    setCart((curr) => {
+      const currentQty = curr[cardId]?.quantity ?? 0
+      if (currentQty >= stock) return curr
+      return { ...curr, [cardId]: { quantity: currentQty + 1, price: card.price, name: card.name } }
     })
+    setIsCartOpen(true)
   }
 
   useEffect(() => {
     try {
-      const savedCart = window.localStorage.getItem(CART_STORAGE_KEY)
-
-      if (savedCart) {
-        setCart(sanitizeCart(JSON.parse(savedCart), cards))
-      }
-    } catch (error) {
-      console.error('Unable to read cart from storage.', error)
+      const saved = window.localStorage.getItem(CART_STORAGE_KEY)
+      if (saved) setCart(sanitizeCart(JSON.parse(saved), cards))
+    } catch (e) {
+      console.error(e)
     } finally {
       setHasLoadedCart(true)
     }
   }, [cards])
 
   useEffect(() => {
-    if (!hasLoadedCart) {
-      return
-    }
-
+    if (!hasLoadedCart) return
     try {
       window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
-    } catch (error) {
-      console.error('Unable to save cart to storage.', error)
+    } catch (e) {
+      console.error(e)
     }
   }, [cart, hasLoadedCart])
 
@@ -276,148 +174,176 @@ export default function Storefront({ cards }) {
 
   const cartItems = cards.reduce((items, card) => {
     const quantity = cart[String(card.id)]?.quantity ?? 0
-
-    if (!quantity) {
-      return items
-    }
-
-    items.push({
-      ...card,
-      quantity,
-      lineTotal: Number(card.price ?? 0) * quantity,
-    })
-
+    if (!quantity) return items
+    items.push({ ...card, quantity, lineTotal: Number(card.price ?? 0) * quantity })
     return items
   }, [])
 
-  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0)
-  const subtotal = cartItems.reduce((total, item) => total + item.lineTotal, 0)
+  const itemCount = cartItems.reduce((t, i) => t + i.quantity, 0)
+  const subtotal = cartItems.reduce((t, i) => t + i.lineTotal, 0)
+
+  let filtered = cards
+    .filter((c) => {
+      if (!search) return true
+      const s = search.toLowerCase()
+      return (
+        c.name?.toLowerCase().includes(s) ||
+        c.set_name?.toLowerCase().includes(s) ||
+        c.pack_type?.toLowerCase().includes(s)
+      )
+    })
+
+  if (sort === 'price-asc') filtered = [...filtered].sort((a, b) => a.price - b.price)
+  else if (sort === 'price-desc') filtered = [...filtered].sort((a, b) => b.price - a.price)
+  else if (sort === 'name') filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
 
   return (
-    <main className="min-h-screen bg-gray-50 text-black">
-      <nav className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-black">PokeVault</h1>
-            <span className="rounded bg-yellow-400 px-2 py-0.5 text-xs font-medium text-black">
-              PH
-            </span>
-          </div>
+    <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
+      <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 h-14 grid grid-cols-3 items-center">
+        {/* Left Spacer */}
+        <div />
 
+        {/* Centered Menu Links */}
+        <div className="hidden md:flex items-center justify-center gap-8">
+          <button className="text-[10px] text-[#444] hover:text-[#C9A844] tracking-widest uppercase transition-colors">Home</button>
+          <button className="text-[10px] text-[#C9A844] tracking-widest uppercase transition-colors font-medium">Shop</button>
+          <button className="text-[10px] text-[#444] hover:text-[#C9A844] tracking-widest uppercase transition-colors">Contact</button>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center justify-end gap-3">
+          <input
+            type="text"
+            placeholder="Search packs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-[#111] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#C9A844] w-48 transition-colors"
+          />
           <button
-            type="button"
             onClick={() => setIsCartOpen(true)}
-            className="rounded-lg bg-yellow-400 px-4 py-1.5 text-sm font-medium text-black hover:bg-yellow-500"
+            className="bg-[#C9A844] text-[#0C0C0C] text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-[#b8973a] transition-colors"
           >
             Cart ({itemCount})
           </button>
         </div>
       </nav>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        <section>
-          <div className="mb-6 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-black">All Cards</h2>
-            <p className="text-sm text-black">{cards.length} listings available</p>
+      <div className="px-6 py-12 border-b border-[#141414] text-center">
+        <h1 className="font-display text-8xl text-[#e0d8c8] font-bold tracking-[0.001em] mb-2">
+          PokéVault
+        </h1>
+        <p className="text-[12px] text-[#C9A844] tracking-[0.3em] uppercase">
+          pokemon packs for trainers
+        </p>
+      </div>
+
+      <div className="px-6 py-6">
+        <div className="flex items-center justify-between mb-5">
+          <p className="text-xs text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
+          <div className="flex items-center gap-12">
+            <div className="flex items-center gap-3">
+              <button className="text-[10px] text-[#444] hover:text-[#C9A844] tracking-widest uppercase transition-colors">English Packs</button>
+              <span className="text-[#1a1a1a] text-[10px]">/</span>
+              <button className="text-[10px] text-[#444] hover:text-[#C9A844] tracking-widest uppercase transition-colors">Japanese Packs</button>
+              <span className="text-[#1a1a1a] text-[10px]">/</span>
+              <button className="text-[10px] text-[#444] hover:text-[#C9A844] tracking-widest uppercase transition-colors">Individual Packs</button>
+              <span className="text-[#1a1a1a] text-[10px]">/</span>
+              <button className="text-[10px] text-[#444] hover:text-[#C9A844] tracking-widest uppercase transition-colors">Bundles</button>
+            </div>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="bg-[#111] border border-[#2a2a2a] text-[#555] text-xs rounded-lg px-3 py-1.5 outline-none focus:border-[#C9A844] transition-colors"
+            >
+              <option value="default">Sort: Default</option>
+              <option value="price-asc">Price: Low to high</option>
+              <option value="price-desc">Price: High to low</option>
+              <option value="name">Name: A–Z</option>
+            </select>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
-            {cards.map((card) => {
-              const stock = Number(card.stock_quantity ?? 0)
-              const quantityInCart = cart[String(card.id)]?.quantity ?? 0
-              const isOutOfStock = stock < 1
-              const canAddMore = quantityInCart < stock
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+          {filtered.map((card) => {
+            const stock = Number(card.stock_quantity ?? 0)
+            const quantityInCart = cart[String(card.id)]?.quantity ?? 0
+            const isOutOfStock = stock < 1
+            const canAddMore = quantityInCart < stock
 
-              return (
-                <div
-                  key={card.id}
-                  className="overflow-hidden rounded-xl border border-gray-200 bg-white transition-colors hover:border-gray-300"
-                >
-                  <div className="flex aspect-[3/4] items-center justify-center bg-gray-100 p-4">
-                    {card.image_url ? (
-                      // The image host is data-driven, so a plain img keeps this working without extra host config.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={card.image_url}
-                        alt={card.name}
-                        className="h-full object-contain"
-                      />
-                    ) : (
-                      <div className="text-center">
-                        <p className="text-2xl">🃏</p>
-                        <p className="mt-1 text-xs text-black">{card.type}</p>
-                      </div>
-                    )}
-                  </div>
+            return (
+              <div
+                key={card.id}
+                className="bg-[#111] border border-[#1e1e1e] rounded-xl overflow-hidden hover:border-[#C9A844] transition-colors group"
+              >
+                <div className="aspect-square flex flex-col items-center justify-center bg-[#161616] relative">
+                  {card.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-display text-xs text-[#333]">No Image</span>
+                  )}
+                </div>
 
-                  <div className="p-3">
-                    <p className="truncate text-sm font-medium text-black">{card.name}</p>
-                    <p className="mb-2 text-xs text-black">
-                      {card.set_name} · {card.condition}
-                    </p>
+                <div className="p-3">
+                  <p className="font-display text-[#e0d8c8] text-base truncate leading-tight">{card.name}</p>
+                  <p className="text-[10px] text-[#333] mt-0.5 tracking-wide">{card.set_name}</p>
 
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-semibold text-black">
-                        {formatCurrency(card.price)}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="font-display text-[#C9A844] text-base">{formatCurrency(card.price)}</span>
 
                     {quantityInCart > 0 ? (
-                      <div className="mt-3 inline-flex items-center rounded-lg border border-gray-200">
+                      <div className="inline-flex items-center border border-[#2a2a2a] rounded-lg overflow-hidden">
                         <button
-                          type="button"
                           onClick={() => updateQuantity(card, quantityInCart - 1)}
-                          className="px-3 py-1.5 text-sm font-medium text-black hover:bg-gray-50"
-                          aria-label={`Decrease quantity for ${card.name}`}
-                        >
-                          -
-                        </button>
-                        <span className="min-w-10 text-center text-sm font-medium text-black">
-                          {quantityInCart}
-                        </span>
+                          className="px-2 py-1 text-xs text-[#666] hover:text-[#C9A844] transition-colors"
+                        >−</button>
+                        <span className="min-w-6 text-center text-xs text-[#e0d8c8]">{quantityInCart}</span>
                         <button
-                          type="button"
                           onClick={() => addToCart(card)}
                           disabled={!canAddMore}
-                          className="px-3 py-1.5 text-sm font-medium text-black hover:bg-gray-50 disabled:cursor-not-allowed disabled:text-black/40 disabled:hover:bg-transparent"
-                          aria-label={`Increase quantity for ${card.name}`}
-                        >
-                          +
-                        </button>
+                          className="px-2 py-1 text-xs text-[#666] hover:text-[#C9A844] transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                        >+</button>
                       </div>
                     ) : (
                       <button
-                        type="button"
                         onClick={() => addToCart(card)}
                         disabled={!canAddMore}
-                        className="mt-3 rounded-md bg-yellow-400 px-3 py-1.5 text-xs font-medium text-black hover:bg-yellow-500 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-black/50"
+                        className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#666] text-xs px-3 py-1.5 rounded-lg hover:bg-[#C9A844] hover:border-[#C9A844] hover:text-[#0C0C0C] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                       >
-                        {isOutOfStock ? 'Out of stock' : '+ Add'}
+                        {isOutOfStock ? 'Sold out' : '+ Add'}
                       </button>
                     )}
-
-                    {!isOutOfStock && stock <= 10 ? (
-                      <p className="mt-2 text-xs font-medium text-black">Only {stock} left!</p>
-                    ) : null}
                   </div>
+
+                  {!isOutOfStock && stock <= 10 && (
+                    <p className="text-[9px] text-[#8B6914] mt-2 tracking-widest uppercase">⬥ Only {stock} left</p>
+                  )}
                 </div>
-              )
-            })}
+              </div>
+            )
+          })}
+        </div>
+
+        {filtered.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-[#333] text-sm">No packs match your search</p>
+            <button onClick={() => setSearch('')} className="text-[#C9A844] text-xs mt-2 hover:underline">
+              Clear search
+            </button>
           </div>
-        </section>
+        )}
       </div>
 
-      {isCartOpen ? (
-        <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setIsCartOpen(false)}>
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70" onClick={() => setIsCartOpen(false)}>
           <div
-            className="ml-auto h-full w-full max-w-md bg-white p-4 shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
+            className="ml-auto h-full w-full max-w-sm shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
             <CartPanel
               cartItems={cartItems}
               itemCount={itemCount}
               subtotal={subtotal}
-              isCheckingOut={isCheckingOut}
               onAdd={addToCart}
               onCheckout={handleCheckout}
               onDecrease={(card) => updateQuantity(card, card.quantity - 1)}
@@ -428,7 +354,7 @@ export default function Storefront({ cards }) {
             />
           </div>
         </div>
-      ) : null}
+      )}
     </main>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowser } from '../browser'
 
@@ -34,21 +34,21 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50">
-            <nav className="bg-white border-b border-gray-200 px-6 py-4">
-                <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
+            <nav className="bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 py-4">
+                <div className="max-w-9xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-lg font-semibold">PokeVault</h1>
-                        <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded">
-                            Admin
+                        <h1 className="text-lg font-bold text-white tracking-tight">PokeVault Admin</h1>
+                        <span className="bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-[#2a2a2a]">
+                            Dashboard
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-500">{user.email}</span>
+                        <span className="text-sm text-[#888] font-medium">{user.email}</span>
                         <button
                             onClick={handleSignOut}
                             disabled={isSigningOut}
-                            className="text-sm text-red-600 hover:text-red-700"
+                            className="text-sm text-white hover:text-red-700"
                         >
                             Sign out
                         </button>
@@ -58,30 +58,30 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
 
             <div className="max-w-6xl mx-auto px-6 py-8">
                 <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                        <p className="text-sm text-gray-500">Total cards</p>
-                        <p className="text-2xl font-semibold mt-1">{cards.length}</p>
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total packs</p>
+                        <p className="text-2xl font-bold mt-1 text-white">{cards.length}</p>
                     </div>
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                        <p className="text-sm text-gray-500">Total orders</p>
-                        <p className="text-2xl font-semibold mt-1">{orders.length}</p>
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total orders</p>
+                        <p className="text-2xl font-bold mt-1 text-white">{orders.length}</p>
                     </div>
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                        <p className="text-sm text-gray-500">Revenue</p>
-                        <p className="text-2xl font-semibold mt-1">
-                            {formatCurrency(orders.reduce((sum, o) => sum + (o.total ?? 0), 0))}
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Revenue</p>
+                        <p className="text-2xl font-bold mt-1 text-[#3e9c35]">
+                            + {formatCurrency(orders.reduce((sum, o) => sum + (o.total ?? 0), 0))}
                         </p>
                     </div>
                 </div>
 
                 <div className="flex gap-2 mb-6">
-                    {['orders', 'cards', 'add card'].map((tab) => (
+                    {['orders', 'packs', 'add pack'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize ${activeTab === tab
-                                    ? 'bg-yellow-400 text-black'
-                                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                            className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab
+                                    ? 'bg-[#C9A844] text-[#0C0C0C]'
+                                    : 'bg-[#1a1a1a] border border-[#2a2a2a] text-[#666] hover:bg-[#222] hover:text-white'
                                 }`}
                         >
                             {tab}
@@ -92,10 +92,10 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                 {activeTab === 'orders' && (
                     <OrdersTab orders={orders} orderItems={orderItems} cards={cards} router={router} />
                 )}
-                {activeTab === 'cards' && (
+                {activeTab === 'packs' && (
                     <CardsTab cards={cards} router={router} />
                 )}
-                {activeTab === 'add card' && (
+                {activeTab === 'add pack' && (
                     <AddCardTab router={router} />
                 )}
             </div>
@@ -105,6 +105,8 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
 
 function OrdersTab({ orders, orderItems, cards, router }) {
     const [updatingId, setUpdatingId] = useState(null)
+    const [statusFilter, setStatusFilter] = useState('all')
+    const [expandedOrders, setExpandedOrders] = useState(new Set())
 
     async function markAsShipped(orderId) {
         setUpdatingId(orderId)
@@ -117,60 +119,128 @@ function OrdersTab({ orders, orderItems, cards, router }) {
         setUpdatingId(null)
     }
 
+    const toggleOrder = (orderId) => {
+        const newExpanded = new Set(expandedOrders)
+        if (newExpanded.has(orderId)) {
+            newExpanded.delete(orderId)
+        } else {
+            newExpanded.add(orderId)
+        }
+        setExpandedOrders(newExpanded)
+    }
+
+    const filteredOrders = orders.filter((order) => {
+        if (statusFilter === 'all') return true
+        return order.status === statusFilter
+    })
+
     if (orders.length === 0) {
         return <p className="text-sm text-gray-400">No orders yet.</p>
     }
 
     return (
-        <div className="space-y-3">
-            {orders.map((order) => (
-                <div key={order.id} className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="flex items-start justify-between gap-4">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-medium">Order #{order.id}</p>
-                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${order.status === 'shipped'
-                                        ? 'bg-green-100 text-green-700'
-                                        : order.status === 'paid'
-                                            ? 'bg-blue-100 text-blue-700'
-                                            : 'bg-yellow-100 text-yellow-700'
-                                    }`}>
-                                    {order.status}
-                                </span>
-                            </div>
-                            <p className="text-sm text-gray-500">{order.guest_name} · {order.guest_email}</p>
-                            <p className="text-xs text-gray-400 mt-1">{order.shipping_address}</p>
-                            <p className="text-xs text-gray-400 mb-2">{formatDate(order.created_at)}</p>
-
-                            <div className="border-t border-gray-100 pt-2 space-y-1">
-                                {orderItems
-                                    .filter((item) => item.order_id === order.id)
-                                    .map((item) => {
-                                        const card = cards.find((c) => String(c.id) === String(item.card_id))
-                                        return (
-                                            <div key={item.id} className="flex justify-between text-xs text-gray-500">
-                                                <span>{card?.name ?? 'Unknown card'} x{item.quantity}</span>
-                                                <span>₱{(item.unit_price * item.quantity).toLocaleString()}</span>
-                                            </div>
-                                        )
-                                    })}
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-sm font-semibold">{formatCurrency(order.total)}</p>
-                            {order.status !== 'shipped' && (
-                                <button
-                                    onClick={() => markAsShipped(order.id)}
-                                    disabled={updatingId === order.id}
-                                    className="mt-2 text-xs bg-black text-white px-3 py-1.5 rounded-lg hover:bg-gray-800 disabled:bg-gray-300"
-                                >
-                                    {updatingId === order.id ? 'Updating...' : 'Mark as shipped'}
-                                </button>
-                            )}
-                        </div>
+        <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
+                    Showing {filteredOrders.length} {statusFilter !== 'all' ? statusFilter : ''} orders
+                </p>
+                <div className="relative group">
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="appearance-none bg-[#111] border border-[#1a1a1a] text-[10px] font-bold uppercase tracking-widest text-[#aaa] px-4 py-2 rounded-lg outline-none focus:border-[#C9A844] transition-all cursor-pointer pr-10"
+                    >
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="shipped">Shipped</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#666] group-hover:text-[#C9A844] transition-colors">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                        </svg>
                     </div>
                 </div>
-            ))}
+            </div>
+
+            <div className="space-y-3">
+                {filteredOrders.length === 0 ? (
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-8 text-center text-[#444] font-bold uppercase tracking-widest text-[10px]">
+                        No {statusFilter} orders found
+                    </div>
+                ) : (
+                    filteredOrders.map((order) => {
+                        const items = orderItems.filter((i) => i.order_id === order.id)
+                        const isExpanded = expandedOrders.has(order.id)
+
+                        return (
+                            <div key={order.id} className="relative bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#222]">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <p className="text-sm font-bold text-white">Order #{order.id}</p>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
+                                                ? 'bg-green-900/20 text-green-400 border border-green-500/30'
+                                                : (order.status === 'pending' || order.status === 'paid')
+                                                    ? 'bg-blue-900/20 text-blue-400 border border-blue-500/30'
+                                                    : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
+                                                }`}>
+                                                {order.status}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-[#aaa]">{order.guest_name} · {order.guest_email}</p>
+                                        <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">Address: {order.shipping_address}</p>
+                                        <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">{formatDate(order.created_at)}</p>
+
+                                        <div className="mt-1">
+                                            <button
+                                                onClick={() => toggleOrder(order.id)}
+                                                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#454545] hover:text-[#9C9C9C] transition-colors"
+                                            >
+                                                <span>{isExpanded ? 'Hide Details' : `View Cards (${items.length} ${items.length === 1 ? 'item' : 'items'})`}</span>
+                                                <svg className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {isExpanded && (
+                                                <div className="border-t border-[#1a1a1a] mt-3 pt-3 grid grid-cols-[max-content_auto] gap-x-4 gap-y-2">
+                                                    {items.map((item) => {
+                                                        const card = cards.find((c) => String(c.id) === String(item.card_id))
+                                                        return (
+                                                            <React.Fragment key={item.id}>
+                                                                <span className="text-xs font-medium text-[#ccc] whitespace-nowrap">
+                                                                    {card?.name ?? 'Unknown pack'} x{item.quantity}
+                                                                </span>
+                                                                <span className="text-xs font-bold text-[#aaa]">
+                                                                    ₱{(item.unit_price * item.quantity).toLocaleString()}
+                                                                </span>
+                                                            </React.Fragment>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {order.status === 'shipped' && (
+                                        <div className="text-right whitespace-nowrap">
+                                            <p className="text-sm font-bold text-[#3e9c35]">+ {formatCurrency(order.total)}</p>
+                                        </div>
+                                    )}
+                                </div>
+                                {order.status !== 'shipped' && (
+                                    <button
+                                        onClick={() => markAsShipped(order.id)}
+                                        disabled={updatingId === order.id}
+                                        className="absolute bottom-4 right-4 text-[12px] uppercase font-bold tracking-widest bg-white text-[#0C0C0C] px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-30"
+                                    >
+                                        {updatingId === order.id ? 'Updating...' : 'Ship now'}
+                                    </button>
+                                )}
+                            </div>
+                        )
+                    })
+                )}
+            </div>
         </div>
     )
 }
@@ -187,8 +257,8 @@ function CardsTab({ cards, router }) {
             price: card.price,
             stock_quantity: card.stock_quantity,
             set_name: card.set_name,
-            rarity: card.rarity,
-            condition: card.condition,
+            pack_type: card.pack_type,
+            image_url: card.image_url,
         })
     }
 
@@ -207,38 +277,38 @@ function CardsTab({ cards, router }) {
     return (
         <div className="space-y-3">
             {cards.map((card) => (
-                <div key={card.id} className="bg-white border border-gray-200 rounded-xl p-4">
+                <div key={card.id} className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4">
                     {editingId === card.id ? (
                         <div className="grid grid-cols-2 gap-3">
                             {[
-                                { label: 'Name', key: 'name', type: 'text' },
+                                { label: 'Pack Name', key: 'name', type: 'text' },
                                 { label: 'Set', key: 'set_name', type: 'text' },
-                                { label: 'Rarity', key: 'rarity', type: 'text' },
-                                { label: 'Condition', key: 'condition', type: 'text' },
+                                { label: 'Pack Type', key: 'pack_type', type: 'text' },
                                 { label: 'Price (₱)', key: 'price', type: 'number' },
                                 { label: 'Stock', key: 'stock_quantity', type: 'number' },
+                                { label: 'Image', key: 'image_url', type: 'text' }
                             ].map(({ label, key, type }) => (
                                 <div key={key}>
-                                    <label className="block text-xs text-gray-500 mb-1">{label}</label>
+                                    <label className="block text-[10px] text-[#666] uppercase tracking-widest font-bold mb-1">{label}</label>
                                     <input
                                         type={type}
                                         value={editForm[key] ?? ''}
                                         onChange={(e) => setEditForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                                        className="w-full border border-gray-300 text-black rounded-lg px-3 py-1.5 text-sm outline-none focus:border-black"
+                                        className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#C9A844] transition-colors"
                                     />
                                 </div>
                             ))}
-                            <div className="col-span-2 flex gap-2 mt-1">
+                            <div className="col-span-2 flex gap-2 mt-2">
                                 <button
                                     onClick={() => saveEdit(card.id)}
                                     disabled={isSaving}
-                                    className="bg-yellow-400 text-black text-sm font-medium px-4 py-1.5 rounded-lg hover:bg-yellow-500 disabled:bg-gray-200"
+                                    className="bg-[#C9A844] text-[#0C0C0C] text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-yellow-500 disabled:opacity-30"
                                 >
                                     {isSaving ? 'Saving...' : 'Save'}
                                 </button>
                                 <button
                                     onClick={() => setEditingId(null)}
-                                    className="border border-gray-200 text-sm px-4 py-1.5 rounded-lg hover:bg-gray-50"
+                                    className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-[#222] hover:text-white"
                                 >
                                     Cancel
                                 </button>
@@ -247,18 +317,18 @@ function CardsTab({ cards, router }) {
                     ) : (
                         <div className="flex items-center justify-between gap-4">
                             <div>
-                                <p className="text-sm font-medium">{card.name}</p>
-                                <p className="text-xs text-gray-500">{card.set_name} · {card.rarity} · {card.condition}</p>
-                                <div className="flex gap-3 mt-1">
-                                    <p className="text-xs text-gray-600">{formatCurrency(card.price)}</p>
-                                    <p className={`text-xs font-medium ${card.stock_quantity <= 3 ? 'text-orange-500' : 'text-gray-500'}`}>
+                                <p className="text-sm font-bold text-white">{card.name}</p>
+                                <p className="text-xs text-[#888]">{card.set_name} · {card.pack_type}</p>
+                                <div className="flex gap-4 mt-2">
+                                    <p className="text-xs font-bold text-[#C9A844]">{formatCurrency(card.price)}</p>
+                                    <p className={`text-xs font-bold ${card.stock_quantity <= 3 ? 'text-orange-500' : 'text-[#666]'}`}>
                                         Stock: {card.stock_quantity}
                                     </p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => startEdit(card)}
-                                className="text-sm border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50"
+                                className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-[#222] hover:text-white transition-all"
                             >
                                 Edit
                             </button>
@@ -274,9 +344,7 @@ function AddCardTab({ router }) {
     const [form, setForm] = useState({
         name: '',
         set_name: '',
-        type: '',
-        rarity: '',
-        condition: '',
+        pack_type: '',
         price: '',
         stock_quantity: '',
         image_url: '',
@@ -296,8 +364,8 @@ function AddCardTab({ router }) {
         })
 
         setForm({
-            name: '', set_name: '', type: '', rarity: '',
-            condition: '', price: '', stock_quantity: '', image_url: '',
+            name: '', set_name: '', pack_type: '',
+            price: '', stock_quantity: '', image_url: '',
         })
         setSuccess(true)
         setIsSubmitting(false)
@@ -305,24 +373,22 @@ function AddCardTab({ router }) {
     }
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 max-w-lg">
-            <h2 className="text-base font-semibold mb-4">Add new card</h2>
+        <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6 max-w-lg">
+            <h2 className="text-base font-bold text-white uppercase tracking-widest mb-6 border-b border-[#222] pb-4">Add new pack</h2>
             {success && (
-                <p className="text-sm text-green-600 mb-4">Card added successfully!</p>
+                <p className="text-sm text-green-400 font-bold mb-6 tracking-wide">✓ Pack added successfully!</p>
             )}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
                 {[
-                    { label: 'Card name', key: 'name', type: 'text', required: true, placeholder: 'Charizard ex' },
+                    { label: 'Pack name', key: 'name', type: 'text', required: true, placeholder: 'Paldea Evolved Booster Pack' },
                     { label: 'Set name', key: 'set_name', type: 'text', required: true, placeholder: 'Scarlet & Violet' },
-                    { label: 'Type', key: 'type', type: 'text', required: false, placeholder: 'Fire' },
-                    { label: 'Rarity', key: 'rarity', type: 'text', required: true, placeholder: 'Holo Rare' },
-                    { label: 'Condition', key: 'condition', type: 'text', required: true, placeholder: 'NM' },
+                    { label: 'Pack type', key: 'pack_type', type: 'text', required: true, placeholder: 'Booster Pack' },
                     { label: 'Price (₱)', key: 'price', type: 'number', required: true, placeholder: '2800' },
                     { label: 'Stock quantity', key: 'stock_quantity', type: 'number', required: true, placeholder: '5' },
                     { label: 'Image URL', key: 'image_url', type: 'text', required: false, placeholder: 'https://...' },
                 ].map(({ label, key, type, required, placeholder }) => (
                     <div key={key}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-1.5">
                             {label} {required && <span className="text-red-500">*</span>}
                         </label>
                         <input
@@ -331,16 +397,16 @@ function AddCardTab({ router }) {
                             onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
                             required={required}
                             placeholder={placeholder}
-                            className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#C9A844] transition-colors placeholder-[#333]"
                         />
                     </div>
                 ))}
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-yellow-400 text-black font-semibold py-2.5 rounded-xl hover:bg-yellow-500 disabled:bg-gray-200 disabled:text-gray-500 text-sm"
+                    className="w-full bg-[#C9A844] text-[#0C0C0C] font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-yellow-500 disabled:opacity-30 text-sm mt-2 transition-all"
                 >
-                    {isSubmitting ? 'Adding...' : 'Add card'}
+                    {isSubmitting ? 'Adding...' : 'Add pack'}
                 </button>
             </form>
         </div>

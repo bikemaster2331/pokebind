@@ -22,9 +22,7 @@ export async function POST(request) {
     const { error } = await supabase.from('pokebox').insert({
         name: body.name,
         set_name: body.set_name,
-        type: body.type || null,
-        rarity: body.rarity,
-        condition: body.condition,
+        pack_type: body.pack_type,
         price: Number(body.price),
         stock_quantity: Number(body.stock_quantity),
         image_url: body.image_url || null,
