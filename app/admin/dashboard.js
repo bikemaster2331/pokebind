@@ -177,17 +177,15 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <p className="text-sm font-bold text-white">Order #{order.id}</p>
+                                            <p className="text-md font-bold text-white">Order #{order.id}</p>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
                                                 ? 'bg-green-900/20 text-green-400 border border-green-500/30'
-                                                : (order.status === 'pending' || order.status === 'paid')
-                                                    ? 'bg-blue-900/20 text-blue-400 border border-blue-500/30'
-                                                    : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
+                                                : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
                                                 }`}>
                                                 {order.status}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-[#aaa]">{order.guest_name} · {order.guest_email}</p>
+                                        <p className="text-sm text-[#aaa] mt-6">{order.guest_name} · {order.guest_email}</p>
                                         <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">Address: {order.shipping_address}</p>
                                         <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">{formatDate(order.created_at)}</p>
 
