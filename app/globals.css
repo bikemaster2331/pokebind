@@ -15,6 +15,24 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Zodiak';
+  src: url('/fonts/Zodiak-Extrabold.woff2') format('woff2'),
+       url('/fonts/Zodiak-Extrabold.woff') format('woff');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Supreme';
+  src: url('/fonts/Supreme-Bold.woff2') format('woff2'),
+       url('/fonts/Supreme-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-gold: #C9A844;
   --color-gold-dark: #8B6914;
@@ -26,6 +44,8 @@
 
   --font-display: "Chillax", "Cormorant Garamond", serif;
   --font-sans: "DM Sans", sans-serif;
+  --font-zodiak: "Zodiak", serif;
+  --font-supreme: "Supreme", sans-serif;
   
   --color-background: var(--background);
   --color-foreground: var(--foreground);
