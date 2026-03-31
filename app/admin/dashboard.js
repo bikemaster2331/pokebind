@@ -56,6 +56,8 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                 </div>
             </nav>
 
+            
+
             <div className="max-w-6xl mx-auto px-6 py-8">
                 <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
