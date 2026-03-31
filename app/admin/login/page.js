@@ -92,6 +92,14 @@ export default function AdminLogin() {
                     >
                         {isLoading ? 'Signing in...' : 'Sign in'}
                     </button>
+                    <div className='text-center mt-3'>
+                        <a
+                            href="/admin/forgot"
+                            className="text-xs text-[#666] hover:text-[#C9A844] transition-colors"
+                        >
+                            Forgot password?
+                        </a>
+                    </div>
                 </form>
             </div>
         </main>
