@@ -103,8 +103,6 @@ NEXT_PUBLIC_ADMIN_EMAIL=your-admin-email@example.com
 RESEND_API_KEY=re_your-resend-key
 ```
 
-Never commit `.env.local` to GitHub. It is already in `.gitignore`.
-
 ---
 
 ## Supabase RLS policies
