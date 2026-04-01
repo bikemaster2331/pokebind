@@ -57,3 +57,27 @@ export async function PATCH(request) {
 
     return Response.json({ message: 'Card updated.' })
 }
+
+export async function DELETE(request) {
+    if (!(await isAdmin())) {
+        return Response.json({ error: 'Unauthorized.' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { id } = body
+
+    if (!id) {
+        return Response.json({ error: 'Missing card id.' }, { status: 400 })
+    }
+
+    const { error } = await supabase
+        .from('pokebox')
+        .delete()
+        .eq('id', id)
+
+    if (error) {
+        return Response.json({ error: error.message }, { status: 500 })
+    }
+
+    return Response.json({ message: 'Card deleted.' })
+}

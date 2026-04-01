@@ -249,6 +249,7 @@ function CardsTab({ cards, router }) {
     const [editingId, setEditingId] = useState(null)
     const [editForm, setEditForm] = useState({})
     const [isSaving, setIsSaving] = useState(false)
+    const [deletingId, setDeletingId] = useState(null)
 
     function startEdit(card) {
         setEditingId(card.id)
@@ -271,6 +272,18 @@ function CardsTab({ cards, router }) {
         })
         setEditingId(null)
         setIsSaving(false)
+        router.refresh()
+    }
+
+    async function deleteCard(cardId) {
+        if (!confirm('Delete this card permanently? This cannot be undone.')) return
+        setDeletingId(cardId)
+        await fetch('/api/admin/cards', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: cardId }),
+        })
+        setDeletingId(null)
         router.refresh()
     }
 
@@ -298,7 +311,7 @@ function CardsTab({ cards, router }) {
                                     />
                                 </div>
                             ))}
-                            <div className="col-span-2 flex gap-2 mt-2">
+                            <div className="col-span-2 flex items-center gap-2 mt-2">
                                 <button
                                     onClick={() => saveEdit(card.id)}
                                     disabled={isSaving}
@@ -311,6 +324,13 @@ function CardsTab({ cards, router }) {
                                     className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-[#222] hover:text-white"
                                 >
                                     Cancel
+                                </button>
+                                <button
+                                    onClick={() => deleteCard(card.id)}
+                                    disabled={deletingId === card.id}
+                                    className="ml-auto bg-transparent border border-red-900/40 text-red-500 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-red-900/20 hover:border-red-500 transition-all disabled:opacity-30"
+                                >
+                                    {deletingId === card.id ? 'Deleting...' : 'Delete'}
                                 </button>
                             </div>
                         </div>
@@ -326,12 +346,21 @@ function CardsTab({ cards, router }) {
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => startEdit(card)}
-                                className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-[#222] hover:text-white transition-all"
-                            >
-                                Edit
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => startEdit(card)}
+                                    className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-[#222] hover:text-white transition-all"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => deleteCard(card.id)}
+                                    disabled={deletingId === card.id}
+                                    className="bg-transparent border border-red-900/40 text-red-500 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-red-900/20 hover:border-red-500 transition-all disabled:opacity-30"
+                                >
+                                    {deletingId === card.id ? '...' : 'Delete'}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
