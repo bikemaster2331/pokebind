@@ -93,7 +93,7 @@ TURBOPACK=0 npm run dev
 
 - Had fun doing this 
 - I like scyther and infernape
-- Favorite legendary is Rayquaza 
+- Favorite legendary is Rayquan-za 
 
 ```text
 ⠀⠀⠀⠀⠀⠀⣤⣶⢦⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
