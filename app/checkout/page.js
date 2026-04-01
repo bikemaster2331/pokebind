@@ -22,6 +22,7 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({
     guest_name: '',
     guest_email: '',
+    guest_phone: '',
     shipping_address: '',
   })
 
@@ -61,6 +62,7 @@ export default function CheckoutPage() {
           items: cartItems,
           guest_name: form.guest_name,
           guest_email: form.guest_email,
+          guest_phone: form.guest_phone,
           shipping_address: form.shipping_address,
         }),
       })
@@ -104,7 +106,7 @@ export default function CheckoutPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full name
+                Trainer name
               </label>
               <input
                 type="text"
@@ -134,6 +136,20 @@ export default function CheckoutPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone number
+              </label>
+              <input
+                type="tel"
+                name="guest_phone"
+                value={form.guest_phone}
+                onChange={handleChange}
+                placeholder="09171234567"
+                className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Shipping address
               </label>
               <textarea
@@ -154,7 +170,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={isSubmitting || cartItems.length === 0}
-              className="w-full bg-yellow-400 text-black font-semibold py-3 rounded-xl hover:bg-yellow-500 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="w-full bg-[#10b981] text-white font-semibold py-3 rounded-xl hover:bg-[#059669] disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? 'Placing order...' : 'Place order'}
             </button>
@@ -183,7 +199,7 @@ export default function CheckoutPage() {
                 <span>Shipping</span>
                 <span>{formatCurrency(shippingFee)}</span>
               </div>
-              <div className="flex justify-between text-sm font-semibold">
+              <div className="flex justify-between text-sm font-semibold text-black">
                 <span>Total</span>
                 <span>{formatCurrency(total)}</span>
               </div>
