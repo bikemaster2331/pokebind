@@ -93,7 +93,7 @@ function CartPanel({ cartItems, itemCount, subtotal, onAdd, onCheckout, onDecrea
           <button
             onClick={onCheckout}
             disabled={itemCount === 0}
-            className="w-full bg-[#C9A844] text-[#0C0C0C] font-medium py-3 rounded-xl text-sm tracking-wider hover:bg-[#b8973a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-[#10b981] text-[#0C0C0C] font-medium py-3 rounded-xl text-sm tracking-wider hover:bg-[#059669] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Proceed to checkout
           </button>
@@ -202,6 +202,13 @@ export default function Storefront({ cards }) {
   else if (sort === 'price-desc') filtered = [...filtered].sort((a, b) => b.price - a.price)
   else if (sort === 'name') filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
 
+  // Push sold out items to the bottom
+  filtered = [...filtered].sort((a, b) => {
+    const aOut = Number(a.stock_quantity ?? 0) < 1 ? 1 : 0
+    const bOut = Number(b.stock_quantity ?? 0) < 1 ? 1 : 0
+    return aOut - bOut
+  })
+
   return (
     <div className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] relative">
       {/* Global Tooltip */}
@@ -226,9 +233,9 @@ export default function Storefront({ cards }) {
 
         {/* Centered Menu Links */}
         <div className="hidden md:flex items-center justify-center gap-10">
-          <button onClick={() => router.push('/home')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors">Home</button>
-          <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium">Shop</button>
-          <button onClick={() => router.push('/contact')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors">Contact</button>
+          <button onClick={() => router.push('/home')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Home</button>
+          <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium cursor-pointer">Shop</button>
+          <button onClick={() => router.push('/contact')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Contact</button>
         </div>
 
         {/* Right Actions */}
@@ -242,7 +249,7 @@ export default function Storefront({ cards }) {
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#333] group-focus-within:text-[#C9A844] transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#333] group-focus-within:text-[#10b981] transition-colors"
             >
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -252,12 +259,12 @@ export default function Storefront({ cards }) {
               placeholder="Search packs..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-[#111] border border-[#2a2a2a] rounded-lg pl-10 pr-4 py-2.5 text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#C9A844] w-64 transition-colors"
+              className="bg-[#111] border border-[#2a2a2a] rounded-lg pl-10 pr-4 py-2.5 text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#10b981] w-64 transition-colors"
             />
           </div>
           <button
             onClick={() => setIsCartOpen(true)}
-            className="bg-[#C9A844] text-[#0C0C0C] text-xs font-semibold px-6 py-2.5 rounded-lg hover:bg-[#b8973a] transition-colors"
+            className="bg-[#10b981] text-[#0C0C0C] text-xs font-semibold px-6 py-2.5 rounded-lg hover:bg-[#059669] transition-colors"
           >
             Cart ({itemCount})
           </button>
@@ -290,7 +297,7 @@ export default function Storefront({ cards }) {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="bg-[#111] border border-[#2a2a2a] text-[#555] text-xs rounded-lg px-3 py-1.5 outline-none focus:border-[#C9A844] transition-colors"
+              className="bg-[#111] border border-[#2a2a2a] text-[#555] text-xs rounded-lg px-3 py-1.5 outline-none focus:border-[#10b981] transition-colors"
             >
               <option value="default">Sort: Default</option>
               <option value="price-asc">Price: Low to high</option>
@@ -310,11 +317,21 @@ export default function Storefront({ cards }) {
             return (
               <div
                 key={card.id}
-                className="store-card bg-[#111] border border-[#1f1f1f] rounded-xl overflow-hidden hover:border-[#2e2e2e] transition-all duration-300 hover:scale-[1.02] group flex flex-col"
+                className={`store-card bg-[#111] border border-[#1f1f1f] rounded-xl overflow-hidden transition-all duration-500 flex flex-col relative ${
+                  isOutOfStock
+                    ? 'opacity-60 cursor-default'
+                    : 'hover:border-[#fff]/20 hover:scale-[1.02] group shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_60px_rgba(255,255,255,0.02)]'
+                }`}
               >
+                {/* Sold Out Overlay */}
+                {isOutOfStock && (
+                  <div className="absolute inset-0 z-10 bg-[#0C0C0C]/60 flex items-center justify-center rounded-xl">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#555] border border-[#333] px-4 py-2 rounded-lg bg-[#0C0C0C]/80">Sold out</span>
+                  </div>
+                )}
                 {/* TAG-Style Slab Label Wrapper */}
                 <div className="p-4 pb-0 bg-[#111]">
-                  <div className="store-card-details relative pt-4 pb-1 px-2 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-[#111] mt-3.5">
+                  <div className="store-card-details relative pt-4 pb-1 px-2 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-[#111] mt-3.5 shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]">
                     
                     {/* Top Centered VLT Tag */}
                     <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#111] px-2">
@@ -385,25 +402,25 @@ export default function Storefront({ cards }) {
                 <div className="store-card-bottom flex flex-col px-0 pt-3 pb-0 flex-grow justify-end bg-[#111]">
                   <div className="store-card-controls w-full">
                     {quantityInCart > 0 ? (
-                      <div className="flex items-center justify-center border border-[#111] rounded-lg overflow-hidden w-full bg-transparent">
+                      <div className="flex items-center justify-center border border-[#111] rounded-lg overflow-hidden w-full bg-transparent h-[44px]">
                         <button
                           onClick={() => updateQuantity(card, quantityInCart - 1)}
-                          className="py-2 text-lg text-[#888] hover:text-white transition-colors flex-1 text-center hover:bg-[#222]"
+                          className="h-full text-lg text-[#888] hover:text-white transition-colors flex-1 text-center hover:bg-[#222]"
                         >−</button>
                         <span className="min-w-8 text-center text-lg text-[#e0d8c8] font-medium">{quantityInCart}</span>
                         <button
                           onClick={() => addToCart(card)}
                           disabled={!canAddMore}
-                          className="py-2 text-lg text-[#888] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed flex-1 text-center hover:bg-[#222]"
+                          className="h-full text-lg text-[#888] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed flex-1 text-center hover:bg-[#222]"
                         >+</button>
                       </div>
                     ) : (
                       <button
                         onClick={() => addToCart(card)}
                         disabled={!canAddMore}
-                        className="w-full bg-transparent border border-[#111] text-[#888] text-xs py-1.5 rounded-lg hover:bg-[#C9A844] hover:border-[#C9A844] hover:text-[#0C0C0C] transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-semibold"
+                        className="font-display w-full bg-transparent border border-[#111] text-[#888] text-xs h-[44px] rounded-lg hover:bg-[#10b981] hover:border-[#10b981] hover:text-[#0C0C0C] transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-semibold"
                       >
-                        {isOutOfStock ? 'Sold out' : 'Add Card'}
+                        {isOutOfStock ? '' : 'Add to cart'}
                       </button>
                     )}
                   </div>
@@ -444,6 +461,12 @@ export default function Storefront({ cards }) {
           </div>
         </div>
       )}
+
+      <footer className="border-t border-[#1a1a1a] px-8 py-6 text-center mt-20">
+        <p className="text-[10px] text-[#333] tracking-widest uppercase">
+            © 2026 PokéVault · Philippines · mll
+        </p>
+      </footer>
     </main>
   </div>
   )
