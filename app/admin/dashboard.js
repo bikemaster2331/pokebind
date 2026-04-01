@@ -38,7 +38,7 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
             <nav className="bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 py-4">
                 <div className="max-w-9xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-lg font-bold text-white tracking-tight">PokeVault Admin</h1>
+                        <h1 className="text-lg font-bold text-white tracking-tight uppercase">PokeVault Admin</h1>
                         <span className="bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-[#2a2a2a]">
                             Dashboard
                         </span>
@@ -56,22 +56,20 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                 </div>
             </nav>
 
-            
-
-            <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="max-w-6xl mx-auto px-6 py-24">
                 <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total packs</p>
                         <p className="text-2xl font-bold mt-1 text-white">{cards.length}</p>
                     </div>
-                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total orders</p>
                         <p className="text-2xl font-bold mt-1 text-white">{orders.length}</p>
                     </div>
-                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#C9A844]">
+                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Revenue</p>
                         <p className="text-2xl font-bold mt-1 text-[#3e9c35]">
-                            + {formatCurrency(orders.reduce((sum, o) => sum + (o.total ?? 0), 0))}
+                            + {formatCurrency(orders.filter(o => o.status === 'shipped').reduce((sum, o) => sum + (o.total ?? 0), 0))}
                         </p>
                     </div>
                 </div>
@@ -109,6 +107,9 @@ function OrdersTab({ orders, orderItems, cards, router }) {
     const [updatingId, setUpdatingId] = useState(null)
     const [statusFilter, setStatusFilter] = useState('all')
     const [expandedOrders, setExpandedOrders] = useState(new Set())
+    const [currentMonth, setCurrentMonth] = useState(new Date())
+    const [selectedDate, setSelectedDate] = useState(null)
+    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(true)
 
     async function markAsShipped(orderId) {
         setUpdatingId(orderId)
@@ -131,10 +132,47 @@ function OrdersTab({ orders, orderItems, cards, router }) {
         setExpandedOrders(newExpanded)
     }
 
-    const filteredOrders = orders.filter((order) => {
-        if (statusFilter === 'all') return true
-        return order.status === statusFilter
+    // Calendar helpers
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+    const prevMonth = () => {
+        setCurrentMonth(new Date(year, month - 1, 1))
+        setSelectedDate(null)
+    }
+    const nextMonth = () => {
+        setCurrentMonth(new Date(year, month + 1, 1))
+        setSelectedDate(null)
+    }
+
+    // Build order count map by day key "YYYY-MM-DD"
+    const ordersByDay = {}
+    orders.forEach((order) => {
+        const d = new Date(order.created_at)
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        if (!ordersByDay[key]) ordersByDay[key] = []
+        ordersByDay[key].push(order)
     })
+
+    // Filter orders
+    let filteredOrders = orders
+    if (selectedDate) {
+        filteredOrders = ordersByDay[selectedDate] ?? []
+    }
+    if (statusFilter !== 'all') {
+        filteredOrders = filteredOrders.filter((o) => o.status === statusFilter)
+    }
+
+    const today = new Date()
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+    // Build calendar grid cells
+    const calendarCells = []
+    for (let i = 0; i < firstDay; i++) calendarCells.push(null)
+    for (let d = 1; d <= daysInMonth; d++) calendarCells.push(d)
 
     if (orders.length === 0) {
         return <p className="text-sm text-gray-400">No orders yet.</p>
@@ -142,9 +180,101 @@ function OrdersTab({ orders, orderItems, cards, router }) {
 
     return (
         <div className="space-y-4">
+            {/* Calendar Header with Toggle */}
+            <div className="flex items-center justify-between mb-10">
+                <button 
+                    onClick={() => setIsCalendarCollapsed(!isCalendarCollapsed)}
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#aaa] hover:text-white transition-colors"
+                >
+                    <svg className={`w-3 h-3 transition-transform ${isCalendarCollapsed ? '-rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <span>{isCalendarCollapsed ? 'Show Calendar View' : 'Hide Calendar View'}</span>
+                </button>
+            </div>
+
+            {/* Calendar */}
+            {!isCalendarCollapsed && (
+                <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-3 mb-4 max-w-sm">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                        <button onClick={prevMonth} className="text-[#555] hover:text-white transition-colors p-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-[#aaa]">{monthName}</h3>
+                        <button onClick={nextMonth} className="text-[#555] hover:text-white transition-colors p-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Day headers */}
+                    <div className="grid grid-cols-7 gap-1 mb-1">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                            <div key={day} className="text-center text-[9px] font-bold uppercase tracking-widest text-[#333] py-1">
+                                {day}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Day cells */}
+                    <div className="grid grid-cols-7 gap-0">
+                        {calendarCells.map((day, i) => {
+                            if (day === null) return <div key={`empty-${i}`} />
+
+                            const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                            const dayOrders = ordersByDay[dayKey] ?? []
+                            const pendingCount = dayOrders.filter((o) => o.status === 'pending').length
+                            const isSelected = selectedDate === dayKey
+                            const hasOrders = dayOrders.length > 0
+
+                            return (
+                                <button
+                                    key={dayKey}
+                                    onClick={() => setSelectedDate(isSelected ? null : dayKey)}
+                                    className={`relative flex items-center justify-center rounded-full text-[10px] transition-all aspect-square ${
+                                        isSelected
+                                            ? 'text-[#0C0C0C] font-bold'
+                                            : 'text-[#444]'
+                                    }`}
+                                >
+                                    <span className={`w-6 h-6 flex items-center justify-center rounded-full transition-all ${
+                                        isSelected
+                                            ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]'
+                                            : hasOrders
+                                                ? pendingCount > 0
+                                                    ? 'bg-yellow-400/20 text-yellow-400 font-bold hover:bg-yellow-400/30'
+                                                    : 'bg-green-400/20 text-green-400 font-bold hover:bg-green-400/30'
+                                                : 'hover:bg-[#161616]'
+                                    }`}>
+                                        {day}
+                                    </span>
+                                </button>
+                            )
+                        })}
+                    </div>
+
+                    {/* Legend */}
+                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#1a1a1a]">
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#444]">Pending Orders</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#444]">Orders Completed</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Filters & Orders */}
             <div className="flex items-center justify-between mb-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
-                    Showing {filteredOrders.length} {statusFilter !== 'all' ? statusFilter : ''} orders
+                    Showing {filteredOrders.length} {statusFilter !== 'all' ? statusFilter : ''} order{filteredOrders.length !== 1 ? 's' : ''}
+                    {` · ${new Date((selectedDate || new Date().toISOString().split('T')[0]) + 'T00:00:00').toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}`}
                 </p>
                 <div className="relative group">
                     <select
@@ -167,7 +297,7 @@ function OrdersTab({ orders, orderItems, cards, router }) {
             <div className="space-y-3">
                 {filteredOrders.length === 0 ? (
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-8 text-center text-[#444] font-bold uppercase tracking-widest text-[10px]">
-                        No {statusFilter} orders found
+                        No {statusFilter !== 'all' ? statusFilter : ''} orders {selectedDate ? 'on this date' : 'found'}
                     </div>
                 ) : (
                     filteredOrders.map((order) => {
@@ -188,6 +318,9 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                             </span>
                                         </div>
                                         <p className="text-sm text-[#aaa] mt-6">{order.guest_name} · {order.guest_email}</p>
+                                        {order.guest_phone && (
+                                            <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">Phone: {order.guest_phone}</p>
+                                        )}
                                         <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">Address: {order.shipping_address}</p>
                                         <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">{formatDate(order.created_at)}</p>
 
