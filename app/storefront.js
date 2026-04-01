@@ -220,29 +220,44 @@ export default function Storefront({ cards }) {
         </div>
       )}
       <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
-      <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 h-14 grid grid-cols-3 items-center">
+      <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-8 h-20 grid grid-cols-3 items-center">
         {/* Left Spacer */}
         <div />
 
         {/* Centered Menu Links */}
-        <div className="hidden md:flex items-center justify-center gap-8">
-          <button className="text-[10px] text-[#444] hover:text-white tracking-widest uppercase transition-colors">Home</button>
-          <button className="text-[10px] text-white tracking-widest uppercase transition-colors font-medium">Shop</button>
-          <button className="text-[10px] text-[#444] hover:text-white tracking-widest uppercase transition-colors">Contact</button>
+        <div className="hidden md:flex items-center justify-center gap-10">
+          <button onClick={() => router.push('/home')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors">Home</button>
+          <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium">Shop</button>
+          <button onClick={() => router.push('/contact')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors">Contact</button>
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center justify-end gap-3">
-          <input
-            type="text"
-            placeholder="Search packs..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-[#111] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#C9A844] w-48 transition-colors"
-          />
+          <div className="relative group">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#333] group-focus-within:text-[#C9A844] transition-colors"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search packs..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-[#111] border border-[#2a2a2a] rounded-lg pl-10 pr-4 py-2.5 text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#C9A844] w-64 transition-colors"
+            />
+          </div>
           <button
             onClick={() => setIsCartOpen(true)}
-            className="bg-[#C9A844] text-[#0C0C0C] text-xs font-medium px-4 py-1.5 rounded-lg hover:bg-[#b8973a] transition-colors"
+            className="bg-[#C9A844] text-[#0C0C0C] text-xs font-semibold px-6 py-2.5 rounded-lg hover:bg-[#b8973a] transition-colors"
           >
             Cart ({itemCount})
           </button>
@@ -260,7 +275,7 @@ export default function Storefront({ cards }) {
 
       <div className="px-6 md:px-16 lg:px-32 xl:px-40 py-6 max-w-[1800px] mx-auto">
         <div className="flex items-center justify-between mb-24">
-          <p className="text-xs text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
+          <p className="font-display font-medium text-lg text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
           <div className="flex items-center gap-12">
             <div className="flex items-center gap-3">
               <button className="text-[10px] text-[#444] hover:text-white tracking-widest uppercase transition-colors">English Packs</button>
@@ -299,12 +314,12 @@ export default function Storefront({ cards }) {
               >
                 {/* TAG-Style Slab Label Wrapper */}
                 <div className="p-4 pb-0 bg-[#111]">
-                  <div className="store-card-details relative p-2.5 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-[#111] mt-1.5">
+                  <div className="store-card-details relative pt-4 pb-1 px-2 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-[#111] mt-3.5">
                     
                     {/* Top Centered VLT Tag */}
                     <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#111] px-2">
                       <div className="border-3 border-[#2e2e2e] px-1.5 py-0.1 bg-[#111]">
-                        <span className="font-zodiak font-extrabold text-[14px] text-white tracking-widest leading-none">VLT</span>
+                        <span className="font-zodiak font-extrabold text-[14px] text-white tracking-widest leading-none font-extrabold">VLT</span>
                       </div>
                     </div>
 
