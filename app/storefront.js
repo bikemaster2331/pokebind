@@ -236,7 +236,7 @@ export default function Storefront({ cards }) {
         </p>
       </div>
 
-      <div className="px-6 md:px-16 lg:px-32 xl:px-40 py-6 max-w-[1800px] mx-auto">
+      <div className="px-6 md:px-16 lg:px-32 xl:px-20 py-6 max-w-[3000px] mx-auto">
         <div className="flex items-center justify-between mb-24">
           <p className="text-xs text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
           <div className="flex items-center gap-12">
@@ -263,7 +263,7 @@ export default function Storefront({ cards }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24 xl:gap-x-16 xl:gap-y-32">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24 xl:gap-x-16 xl:gap-y-32">
           {filtered.map((card) => {
             const stock = Number(card.stock_quantity ?? 0)
             const quantityInCart = cart[String(card.id)]?.quantity ?? 0
