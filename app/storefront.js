@@ -290,19 +290,19 @@ export default function Storefront({ cards }) {
                     <div className="flex flex-col justify-between pr-2 mx-2 my-3">
                       <div>
                         <div className="relative group/tooltip">
-                          <p className="font-display text-white text-xs truncate leading-tight pr-1 cursor-help">{card.name}</p>
+                          <p className="font-display text-white text-[13px] font-medium truncate leading-tight pr-1 cursor-help">{card.name}</p>
                           <div className="absolute left-0 top-full mt-1.5 w-max max-w-[250px] opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-300 z-50 pointer-events-none translate-y-1 group-hover/tooltip:translate-y-0">
                             <div className="bg-[#111] border border-[#C9A844]/40 rounded-lg p-2.5 shadow-2xl">
                               <p className="font-display text-white text-[11px] leading-snug line-clamp-2">{card.name}</p>
                             </div>
                           </div>
                         </div>
-                        <p className="text-[9px] text-[#888] mt-1 tracking-wide uppercase line-clamp-2 pr-1">{card.set_name}</p>
+                        <p className="text-[9px] text-white/40 mt-1 font-normal tracking-widest uppercase line-clamp-2 pr-1">{card.set_name}</p>
                       </div>
                       <div className="text-left">
-                        <p className="font-display text-white text-xs">{formatCurrency(card.price)}</p>
+                        <p className="font-display text-[#FAFAFA] text-sm font-medium">{formatCurrency(card.price)}</p>
                         {!isOutOfStock && stock <= 10 && (
-                          <p className="text-[8px] text-[#C9A844] mt-0.5 tracking-widest uppercase truncate">Only {stock} left</p>
+                          <p className="text-[8px] text-[#C9A844] mt-0.5 font-bold tracking-widest uppercase truncate">Only {stock} left</p>
                         )}
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export default function Storefront({ cards }) {
                           </span>
                         </div>
                         <div className="flex items-center justify-center">
-                          <span className="font-supreme text-[2.5rem] tracking-tighter text-white font-bold leading-none mr-2">
+                          <span className="font-supreme text-5xl tracking-tighter text-white font-bold leading-none mr-2">
                             10
                           </span>
                         </div>
