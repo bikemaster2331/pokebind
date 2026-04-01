@@ -36,7 +36,7 @@ export async function sendOrderReceipt({ order, items, cards }) {
       <p style="color: #666; font-size: 14px; margin-bottom: 24px;">Order confirmation</p>
 
       <div style="background: #f9f9f9; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-        <p style="font-size: 13px; color: #666; margin: 0 0 4px;">Hi Trainer!</p>
+        <p style="font-size: 13px; color: #666; margin: 0 0 4px;">Hi Trainer ${order.guest_name}!</p>
         <p style="font-size: 14px; margin: 0;">Your order has been received!</p>
       </div>
 
@@ -96,7 +96,7 @@ export async function sendShippedNotification({ order }) {
       <p style="color: #666; font-size: 14px; margin-bottom: 24px;">Your order is on its way!</p>
 
       <div style="background: #f0fdf4; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-        <p style="font-size: 13px; color: #666; margin: 0 0 4px;">Hi Trainer!</p>
+        <p style="font-size: 13px; color: #666; margin: 0 0 4px;">Hi Trainer ${order.guest_name}!</p>
         <p style="font-size: 14px; margin: 0;">Your order has been shipped!</p>
       </div>
 
