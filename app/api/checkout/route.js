@@ -41,6 +41,7 @@ export async function POST(request) {
     const items = normalizeItems(body?.items)
     const guestEmail = body?.guest_email ?? null
     const guestName = body?.guest_name ?? null
+    const guestPhone = body?.guest_phone ?? null
     const shippingAddress = body?.shipping_address ?? null
 
     if (!items) {
@@ -100,6 +101,7 @@ export async function POST(request) {
       .insert({
         guest_email: guestEmail,
         guest_name: guestName,
+        guest_phone: guestPhone,
         shipping_address: shippingAddress,
         status: 'pending',
         total,
