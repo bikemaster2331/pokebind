@@ -215,7 +215,7 @@ export default function Storefront({ cards }) {
           }}
         >
           <div className="bg-[#111] border border-[#C9A844]/40 rounded-lg p-2.5 shadow-2xl backdrop-blur-md max-w-[250px]">
-            <p className="font-display text-white text-[11px] leading-snug">{hoveredCard.name}</p>
+            <p className="font-display text-white text-[14px] leading-snug">{hoveredCard.name}</p>
           </div>
         </div>
       )}
@@ -299,21 +299,21 @@ export default function Storefront({ cards }) {
               >
                 {/* TAG-Style Slab Label Wrapper */}
                 <div className="p-4 pb-0 bg-[#111]">
-                  <div className="store-card-details relative p-2.5 grid grid-cols-2 gap-2 border-1 border-[#fcfcfc] rounded-md bg-[#111] mt-1.5">
+                  <div className="store-card-details relative p-2.5 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-[#111] mt-1.5">
                     
                     {/* Top Centered VLT Tag */}
                     <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#111] px-2">
-                      <div className="border-1 border-[#fcfcfc] px-1.5 py-0.1 bg-[#111]">
+                      <div className="border-3 border-[#2e2e2e] px-1.5 py-0.1 bg-[#111]">
                         <span className="font-zodiak font-extrabold text-[14px] text-white tracking-widest leading-none">VLT</span>
                       </div>
                     </div>
 
                     {/* Left Column: Product Info */}
-                    <div className="flex flex-col justify-between pr-2 mx-2 my-3">
+                    <div className="flex flex-col justify-between pr-2 mx-2 my-3 flex-1 min-w-0">
                       <div>
                         <div>
                           <p 
-                            className="font-display text-white text-xs truncate leading-tight pr-1 cursor-help"
+                            className="font-display font-medium text-white text-[12px] truncate leading-tight pr-1 cursor-help"
                             onMouseEnter={() => setHoveredCard(card)}
                             onMouseLeave={() => setHoveredCard(null)}
                             onMouseMove={handleMouseMove}
@@ -326,7 +326,7 @@ export default function Storefront({ cards }) {
                       <div className="text-left">
                         <p className="font-display text-[#FAFAFA] text-xs">{formatCurrency(card.price)}</p>
                         {!isOutOfStock && stock <= 10 && (
-                          <p className="text-[8px] text-[#C9A844] mt-0.5 tracking-widest uppercase truncate">Only {stock} left</p>
+                          <p className="text-[9px] text-[#C9A844] mt-0.5 tracking-widest uppercase truncate">Only {stock} left</p>
                         )}
                       </div>
                     </div>
@@ -334,23 +334,19 @@ export default function Storefront({ cards }) {
                     {/* Right Column: Grade Number block */}
                     <div className="flex items-stretch justify-end">
                       <div className="flex items-stretch justify-end">
-                        <div className="flex items-center justify-center pr-1.5 pl-1.5">
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-[#C9A844] p-1 rounded-none">
-                            <path d="M4 20a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="m12.474 5.943 1.567 5.34a1 1 0 0 0 1.75.328l2.616-3.402"/><path d="m20 9-3 9"/><path d="m5.594 8.209 2.615 3.403a1 1 0 0 0 1.75-.329l1.567-5.34"/><path d="M7 18 4 9"/><circle cx="12" cy="4" r="2"/><circle cx="20" cy="7" r="2"/><circle cx="4" cy="7" r="2"/>
-                          </svg>
-                        </div>
-                        <div className="flex items-center justify-center pr-2">
+                        <div className="flex items-center justify-center">
                           <span 
-                            className="text-[6px] text-[#fff] uppercase tracking-widest font-display rotate-180" 
+                            className="font-supreme text-[8px] text-[#fff] uppercase font-bold tracking-widest font-display rotate-180" 
                             style={{ writingMode: 'vertical-rl' }}
                           >
-                            Pokevault
+                            Pkvault
                           </span>
                         </div>
-                        <div className="flex items-center justify-center">
-                          <span className="font-supreme text-[2.5rem] tracking-tighter text-white font-bold leading-none mr-2">
-                            10
-                          </span>
+                        <div className="flex flex-col items-center justify-center pr-0.5 pl-0.5 pb-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-[#F0B626] p-1 rounded-none">
+                            <path d="M4 20a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="m12.474 5.943 1.567 5.34a1 1 0 0 0 1.75.328l2.616-3.402"/><path d="m20 9-3 9"/><path d="m5.594 8.209 2.615 3.403a1 1 0 0 0 1.75-.329l1.567-5.34"/><path d="M7 18 4 9"/><circle cx="12" cy="4" r="2"/><circle cx="20" cy="7" r="2"/><circle cx="4" cy="7" r="2"/>
+                          </svg>
+                          <span className="font-supreme text-white text-[8px] font-bold -mt-1 tracking-widest">CARDS</span>
                         </div>
                       </div>
                     </div>
@@ -371,7 +367,7 @@ export default function Storefront({ cards }) {
                   )}
                 </div>
 
-                <div className="store-card-bottom flex flex-col p-3 flex-grow justify-end bg-[#111]">
+                <div className="store-card-bottom flex flex-col px-0 pt-3 pb-0 flex-grow justify-end bg-[#111]">
                   <div className="store-card-controls w-full">
                     {quantityInCart > 0 ? (
                       <div className="flex items-center justify-center border border-[#111] rounded-lg overflow-hidden w-full bg-transparent">
@@ -383,7 +379,7 @@ export default function Storefront({ cards }) {
                         <button
                           onClick={() => addToCart(card)}
                           disabled={!canAddMore}
-                          className="py-1.5 text-xs text-[#888] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed flex-1 text-center hover:bg-[#222]"
+                          className="py-2 text-lg text-[#888] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed flex-1 text-center hover:bg-[#222]"
                         >+</button>
                       </div>
                     ) : (
