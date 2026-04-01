@@ -119,6 +119,12 @@ export default function Storefront({ cards }) {
   const [checkoutFeedbackTone, setCheckoutFeedbackTone] = useState('idle')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('default')
+  const [hoveredCard, setHoveredCard] = useState(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e) => {
+    setMousePos({ x: e.clientX, y: e.clientY })
+  }
 
   function updateQuantity(card, nextQuantity) {
     const cardId = String(card.id)
@@ -197,7 +203,23 @@ export default function Storefront({ cards }) {
   else if (sort === 'name') filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
 
   return (
-    <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
+    <div className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] relative">
+      {/* Global Tooltip */}
+      {hoveredCard && (
+        <div 
+          className="fixed z-[9999] pointer-events-none transition-opacity duration-200"
+          style={{ 
+            left: mousePos.x + 15, 
+            top: mousePos.y + 15,
+            opacity: hoveredCard ? 1 : 0
+          }}
+        >
+          <div className="bg-[#111] border border-[#C9A844]/40 rounded-lg p-2.5 shadow-2xl backdrop-blur-md max-w-[250px]">
+            <p className="font-display text-white text-[11px] leading-snug">{hoveredCard.name}</p>
+          </div>
+        </div>
+      )}
+      <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
       <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 h-14 grid grid-cols-3 items-center">
         {/* Left Spacer */}
         <div />
@@ -236,7 +258,7 @@ export default function Storefront({ cards }) {
         </p>
       </div>
 
-      <div className="px-6 md:px-16 lg:px-32 xl:px-20 py-6 max-w-[3000px] mx-auto">
+      <div className="px-6 md:px-16 lg:px-32 xl:px-40 py-6 max-w-[1800px] mx-auto">
         <div className="flex items-center justify-between mb-24">
           <p className="text-xs text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
           <div className="flex items-center gap-12">
@@ -263,7 +285,7 @@ export default function Storefront({ cards }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24 xl:gap-x-16 xl:gap-y-32">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24 xl:gap-x-16 xl:gap-y-32">
           {filtered.map((card) => {
             const stock = Number(card.stock_quantity ?? 0)
             const quantityInCart = cart[String(card.id)]?.quantity ?? 0
@@ -289,20 +311,22 @@ export default function Storefront({ cards }) {
                     {/* Left Column: Product Info */}
                     <div className="flex flex-col justify-between pr-2 mx-2 my-3">
                       <div>
-                        <div className="relative group/tooltip">
-                          <p className="font-display text-white text-[13px] font-medium truncate leading-tight pr-1 cursor-help">{card.name}</p>
-                          <div className="absolute left-0 top-full mt-1.5 w-max max-w-[250px] opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-300 z-50 pointer-events-none translate-y-1 group-hover/tooltip:translate-y-0">
-                            <div className="bg-[#111] border border-[#C9A844]/40 rounded-lg p-2.5 shadow-2xl">
-                              <p className="font-display text-white text-[11px] leading-snug line-clamp-2">{card.name}</p>
-                            </div>
-                          </div>
+                        <div>
+                          <p 
+                            className="font-display text-white text-xs truncate leading-tight pr-1 cursor-help"
+                            onMouseEnter={() => setHoveredCard(card)}
+                            onMouseLeave={() => setHoveredCard(null)}
+                            onMouseMove={handleMouseMove}
+                          >
+                            {card.name}
+                          </p>
                         </div>
-                        <p className="text-[9px] text-white/40 mt-1 font-normal tracking-widest uppercase line-clamp-2 pr-1">{card.set_name}</p>
+                        <p className="text-[9px] text-white/40 mt-1 tracking-wide uppercase line-clamp-2 pr-1">{card.set_name}</p>
                       </div>
                       <div className="text-left">
-                        <p className="font-display text-[#FAFAFA] text-sm font-medium">{formatCurrency(card.price)}</p>
+                        <p className="font-display text-[#FAFAFA] text-xs">{formatCurrency(card.price)}</p>
                         {!isOutOfStock && stock <= 10 && (
-                          <p className="text-[8px] text-[#C9A844] mt-0.5 font-bold tracking-widest uppercase truncate">Only {stock} left</p>
+                          <p className="text-[8px] text-[#C9A844] mt-0.5 tracking-widest uppercase truncate">Only {stock} left</p>
                         )}
                       </div>
                     </div>
@@ -324,7 +348,7 @@ export default function Storefront({ cards }) {
                           </span>
                         </div>
                         <div className="flex items-center justify-center">
-                          <span className="font-supreme text-5xl tracking-tighter text-white font-bold leading-none mr-2">
+                          <span className="font-supreme text-[2.5rem] tracking-tighter text-white font-bold leading-none mr-2">
                             10
                           </span>
                         </div>
@@ -333,7 +357,12 @@ export default function Storefront({ cards }) {
                   </div>
                 </div>
 
-                <div className="store-card-image aspect-[3/4] flex flex-col items-center justify-center bg-transparent relative shrink-0">
+                <div 
+                  className="store-card-image aspect-[3/4] flex flex-col items-center justify-center bg-transparent relative shrink-0 cursor-help"
+                  onMouseEnter={() => setHoveredCard(card)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  onMouseMove={handleMouseMove}
+                >
                   {card.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
@@ -405,5 +434,6 @@ export default function Storefront({ cards }) {
         </div>
       )}
     </main>
+  </div>
   )
 }
