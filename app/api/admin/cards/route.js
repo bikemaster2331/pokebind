@@ -1,4 +1,15 @@
+/*
+  POKEVAULT - ADMIN CARDS API
+  ---------------------------
+  Backend API for managing the 'pokebox' inventory.
+  - POST: Add new card packs.
+  - PATCH: Update existing card details or stock.
+  - DELETE: Remove card packs.
+  - Required Header: Admin authentication check (isAdmin).
+*/
+
 import { createClient } from '@supabase/supabase-js'
+
 import { createSupabaseServer } from '../../../server'
 
 const supabase = createClient(
@@ -23,6 +34,7 @@ export async function POST(request) {
         name: body.name,
         set_name: body.set_name,
         pack_type: body.pack_type,
+        language: body.language,
         price: Number(body.price),
         stock_quantity: Number(body.stock_quantity),
         image_url: body.image_url || null,
