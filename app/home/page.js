@@ -6,8 +6,8 @@ export default function HomePage() {
     const router = useRouter()
 
     return (
-        <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] flex flex-col">
-            <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-8 h-20 grid grid-cols-3 items-center">
+        <main className="min-h-screen bg-[#141414] text-[#e0d8c8] flex flex-col">
+            <nav className="sticky top-0 z-10 bg-[#141414] border-b border-[#1a1a1a] px-8 h-20 grid grid-cols-3 items-center">
                 <div />
                 <div className="hidden md:flex items-center justify-center gap-10">
                     <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium cursor-pointer">Home</button>
@@ -37,7 +37,7 @@ export default function HomePage() {
                             </p>
                             <button
                                 onClick={() => router.push('/')}
-                                className="bg-[#10b981] text-[#0C0C0C] text-xs font-bold uppercase tracking-widest px-12 py-5 rounded-xl hover:bg-[#059669] transition-all cursor-pointer shadow-2xl shadow-[#10b981]/10"
+                                className="bg-[#10b981] text-[#141414] text-xs font-bold uppercase tracking-widest px-12 py-5 rounded-xl hover:bg-[#059669] transition-all cursor-pointer shadow-2xl shadow-[#10b981]/10"
                             >
                                 Browse packs
                             </button>
