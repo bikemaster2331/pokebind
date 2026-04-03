@@ -351,33 +351,34 @@ export default function Storefront({ cards }) {
         {/* THE FIX: Adjusted main container padding for mobile screen edges */}
         <div className="px-4 md:px-16 lg:px-32 xl:px-40 pt-0 pb-16 max-w-[1800px] mx-auto">
 
-          {/* THE FIX: Stacked filter controls on mobile. Flex-col handles narrow width gracefully. */}
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 md:mb-12 gap-6">
-            <p className="font-display font-medium text-sm md:text-lg text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
+          {/* THE FIX: Unified filters and sorter on one row for mobile. Removed listings count on mobile. */}
+          <div className="flex flex-row items-center justify-between mb-8 md:mb-12 gap-4">
+            <p className="hidden md:block font-display font-medium text-sm md:text-lg text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-12 w-full lg:w-auto">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex flex-row items-center justify-between w-full md:w-auto md:gap-12">
+              <div className="flex items-center gap-x-2 md:gap-x-3">
                 <button
                   onClick={() => setLanguageFilter('All')}
-                  className={`text-[10px] tracking-widest uppercase transition-colors ${languageFilter === 'All' ? 'text-white font-medium' : 'text-[#444] hover:text-white'}`}
+                  className={`text-[9px] md:text-[10px] tracking-widest uppercase transition-colors ${languageFilter === 'All' ? 'text-white font-medium' : 'text-[#444] hover:text-white'}`}
                 >All</button>
-                <span className="text-[#1a1a1a] text-[10px]">/</span>
+                <span className="text-[#1a1a1a] text-[9px] md:text-[10px]">/</span>
 
                 <button
                   onClick={() => setLanguageFilter('EN')}
-                  className={`text-[10px] tracking-widest uppercase transition-colors ${languageFilter === 'EN' ? 'text-white font-medium' : 'text-[#444] hover:text-white'}`}
+                  className={`text-[9px] md:text-[10px] tracking-widest uppercase transition-colors ${languageFilter === 'EN' ? 'text-white font-medium' : 'text-[#444] hover:text-white'}`}
                 >English</button>
-                <span className="text-[#1a1a1a] text-[10px]">/</span>
+                <span className="text-[#1a1a1a] text-[9px] md:text-[10px]">/</span>
 
                 <button
                   onClick={() => setLanguageFilter('JPN')}
-                  className={`text-[10px] tracking-widest uppercase transition-colors ${languageFilter === 'JPN' ? 'text-white font-medium' : 'text-[#444] hover:text-white'}`}
+                  className={`text-[9px] md:text-[10px] tracking-widest uppercase transition-colors ${languageFilter === 'JPN' ? 'text-white font-medium' : 'text-[#444] hover:text-white'}`}
                 >Japanese</button>
               </div>
+
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="bg-[#111] border border-[#2a2a2a] text-[#555] text-xs rounded-lg px-3 py-2 w-full sm:w-auto outline-none focus:border-[#10b981] transition-colors"
+                className="bg-[#111] border border-[#2a2a2a] text-[#555] text-[9px] md:text-xs rounded-lg px-2 md:px-3 py-1 md:py-2 w-auto outline-none focus:border-[#10b981] transition-colors ml-auto"
               >
                 <option value="default">Sort: Default</option>
                 <option value="price-asc">Price: Low to high</option>
