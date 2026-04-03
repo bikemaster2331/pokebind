@@ -330,7 +330,7 @@ export default function Storefront({ cards }) {
         {/* Upgraded Premium Hero Section */}
         <div className="relative px-6 py-32 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
           {/* Foreground Content */}
-          <h1 className="relative z-10 font-display text-8xl text-[#e0d8c8] font-bold tracking-[0.001em] mb-6 drop-shadow-2xl">
+          <h1 className="relative z-10 font-display text-[14rem] text-[#e0d8c8] font-bold tracking-[0.001em] mb-6 drop-shadow-2xl">
             PokéVault
           </h1>
           <p className="text-[12px] text-[#fff] tracking-[0.3em] uppercase">
