@@ -1,4 +1,17 @@
+/*
+  POKEVAULT - ADMIN DASHBOARD COMPONENT
+  ------------------------------------
+  Comprehensive admin interface for site management.
+  Features include:
+  - Inventory management (Add, Edit, Delete card packs).
+  - Order tracking and fulfillment (Mark as shipped).
+  - Real-time revenue and order stats.
+  - Interactive calendar view for daily order summaries.
+  - Secure sign-out functionality.
+*/
+
 'use client'
+
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -316,6 +329,16 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                                 }`}>
                                                 {order.status}
                                             </span>
+                                            {/* ADDED: Payment Status Badge */}
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                                order.payment_status === 'paid'
+                                                    ? 'bg-green-900/20 text-green-400 border border-green-500/30'
+                                                    : order.payment_status === 'cancelled'
+                                                    ? 'bg-red-900/20 text-red-400 border border-red-500/30'
+                                                    : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
+                                                }`}>
+                                                {order.payment_status ?? 'unpaid'}
+                                            </span>
                                         </div>
                                         <p className="text-sm text-[#aaa] mt-6">{order.guest_name} · {order.guest_email}</p>
                                         {order.guest_phone && (
@@ -360,7 +383,7 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                         </div>
                                     )}
                                 </div>
-                                {order.status !== 'shipped' && (
+                                {order.status !== 'shipped' && order.payment_status === 'paid' && (
                                     <button
                                         onClick={() => markAsShipped(order.id)}
                                         disabled={updatingId === order.id}
@@ -368,6 +391,11 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                     >
                                         {updatingId === order.id ? 'Updating...' : 'Ship now'}
                                     </button>
+                                )}
+                                {order.status !== 'shipped' && order.payment_status !== 'paid' && (
+                                    <span className="absolute bottom-4 right-4 text-[10px] uppercase font-bold tracking-widest text-[#333] border border-[#1e1e1e] px-3 py-1.5 rounded-lg">
+                                        Awaiting payment
+                                    </span>
                                 )}
                             </div>
                         )
@@ -392,6 +420,7 @@ function CardsTab({ cards, router }) {
             price: card.price,
             stock_quantity: card.stock_quantity,
             set_name: card.set_name,
+            language: card.language,
             pack_type: card.pack_type,
             image_url: card.image_url,
         })
@@ -455,18 +484,30 @@ function CardsTab({ cards, router }) {
                                 { label: 'Pack Name', key: 'name', type: 'text' },
                                 { label: 'Set', key: 'set_name', type: 'text' },
                                 { label: 'Pack Type', key: 'pack_type', type: 'text' },
+                                { label: 'Language', key: 'language', type: 'select' },
                                 { label: 'Price (₱)', key: 'price', type: 'number' },
                                 { label: 'Stock', key: 'stock_quantity', type: 'number' },
                                 { label: 'Image', key: 'image_url', type: 'text' }
                             ].map(({ label, key, type }) => (
                                 <div key={key}>
                                     <label className="block text-[10px] text-[#666] uppercase tracking-widest font-bold mb-1">{label}</label>
-                                    <input
-                                        type={type}
-                                        value={editForm[key] ?? ''}
-                                        onChange={(e) => setEditForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                                        className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#C9A844] transition-colors"
-                                    />
+                                    {type === 'select' ? (
+                                        <select
+                                            value={editForm[key] || 'EN'}
+                                            onChange={(e) => setEditForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#C9A844] transition-colors appearance-none cursor-pointer"
+                                        >
+                                            <option value="EN">EN</option>
+                                            <option value="JPN">JPN</option>
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={type}
+                                            value={editForm[key] ?? ''}
+                                            onChange={(e) => setEditForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#C9A844] transition-colors"
+                                        />
+                                    )}
                                 </div>
                             ))}
                             <div className="col-span-2 flex items-center gap-2 mt-2">
@@ -523,6 +564,7 @@ function AddCardTab({ router }) {
         name: '',
         set_name: '',
         pack_type: '',
+        language: 'EN',
         price: '',
         stock_quantity: '',
         image_url: '',
@@ -542,7 +584,7 @@ function AddCardTab({ router }) {
         })
 
         setForm({
-            name: '', set_name: '', pack_type: '',
+            name: '', set_name: '', pack_type: '', language: '',
             price: '', stock_quantity: '', image_url: '',
         })
         setSuccess(true)
@@ -560,7 +602,8 @@ function AddCardTab({ router }) {
                 {[
                     { label: 'Pack name', key: 'name', type: 'text', required: true, placeholder: 'Paldea Evolved Booster Pack' },
                     { label: 'Set name', key: 'set_name', type: 'text', required: true, placeholder: 'Scarlet & Violet' },
-                    { label: 'Pack type', key: 'pack_type', type: 'text', required: true, placeholder: 'Booster Pack' },
+                    { label: 'Pack type', key: 'pack_type', type: 'text', required: true, placeholder: 'Loose Booster Pack' },
+                    { label: 'Language', key: 'language', type: 'select', required: true },
                     { label: 'Price (₱)', key: 'price', type: 'number', required: true, placeholder: '2800' },
                     { label: 'Stock quantity', key: 'stock_quantity', type: 'number', required: true, placeholder: '5' },
                     { label: 'Image URL', key: 'image_url', type: 'text', required: false, placeholder: 'https://...' },
@@ -569,14 +612,26 @@ function AddCardTab({ router }) {
                         <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-1.5">
                             {label} {required && <span className="text-red-500">*</span>}
                         </label>
-                        <input
-                            type={type}
-                            value={form[key] ?? ''}
-                            onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                            required={required}
-                            placeholder={placeholder}
-                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#C9A844] transition-colors placeholder-[#333]"
-                        />
+                        {type === 'select' ? (
+                            <select
+                                value={form[key] || 'EN'}
+                                onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                                required={required}
+                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#C9A844] transition-colors appearance-none cursor-pointer"
+                            >
+                                <option value="EN">EN</option>
+                                <option value="JPN">JPN</option>
+                            </select>
+                        ) : (
+                            <input
+                                type={type}
+                                value={form[key] ?? ''}
+                                onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                                required={required}
+                                placeholder={placeholder}
+                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#C9A844] transition-colors placeholder-[#333]"
+                            />
+                        )}
                     </div>
                 ))}
                 <button
