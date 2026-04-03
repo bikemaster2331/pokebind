@@ -1,11 +1,18 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 
 function SuccessContent() {
   const params = useSearchParams()
   const router = useRouter()
+
+  useEffect(() => {
+    // Clear both the cart and any leftover form data
+    window.localStorage.removeItem('pokevault-cart')
+    window.localStorage.removeItem('pokevault-checkout-form')
+    window.localStorage.removeItem('pokevault-checkout-session')
+  }, [])
 
 
   return (
