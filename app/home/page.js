@@ -18,17 +18,17 @@ export default function HomePage() {
                 <div />
             </nav>
 
-            <div className="flex-1 w-full max-w-[1800px] mx-auto px-12 pt-10 pb-20 flex flex-col">
-                <div className="grid grid-cols-2 gap-20 flex-1">
-                    {/* Left Column: Headline */}
-                    <div className="flex flex-col justify-start text-left">
-                        <h1 className="font-display text-[12rem] md:text-[16rem] text-[#e0d8c8] font-bold leading-tight mb-4 whitespace-nowrap drop-shadow-2xl">
+            <div className="flex-1 w-full max-w-[1800px] mx-auto px-12 pt-10 pb-20 flex flex-col justify-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-stretch h-full">
+                    {/* Left Column: Headline at the Top Left */}
+                    <div className="flex flex-col justify-start items-start text-left">
+                        <h1 className="font-display text-6xl md:text-8xl text-[#e0d8c8] font-bold tracking-tight mb-4 whitespace-nowrap drop-shadow-2xl">
                             PokéVault
                         </h1>
                     </div>
 
-                    {/* Right Column: CTA & Description */}
-                    <div className="flex flex-col justify-end items-end text-right">
+                    {/* Right Column: CTA & Description at the Bottom Right */}
+                    <div className="flex flex-col justify-end items-center md:items-end text-center md:text-right">
                         <div className="max-w-md">
                             <p className="text-sm text-[#444] tracking-widest uppercase mb-4 drop-shadow-md">
                                 Pokémon packs for trainers
