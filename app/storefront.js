@@ -336,7 +336,7 @@ export default function Storefront({ cards }) {
               src="/assets/images/snore.png" 
               alt=""
               draggable="false"
-              className="absolute -top-32 left-1/2 -translate-x-1/2 w-64 h-auto z-20 pointer-events-none drop-shadow-2xl"
+              className="absolute -top-12 left-3/4 -translate-x-1/2 w-72 h-auto z-20 pointer-events-none drop-shadow-2xl"
             />
             <h1 className="relative z-10 font-display text-[14rem] text-[#e0d8c8] font-bold tracking-[0.001em] drop-shadow-2xl">
               PokéVault
