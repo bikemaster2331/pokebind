@@ -300,21 +300,22 @@ export default function Storefront({ cards }) {
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              {/* THE FIX: Input is w-[110px] on mobile to prevent overflow, expands on larger screens */}
+              {/* THE FIX: Input is w-[110px] on mobile to prevent overflow, expands on larger screens. Reduced height by 2px (py-1.5 vs py-2) */}
               <input
                 type="text"
                 placeholder="Search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-[#111] border border-[#2a2a2a] rounded-lg pl-8 md:pl-10 pr-2 md:pr-4 py-2 md:py-2.5 text-[10px] md:text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#10b981] w-[110px] sm:w-[180px] md:w-64 transition-all"
+                className="bg-[#111] border border-[#2a2a2a] rounded-lg pl-8 md:pl-10 pr-2 md:pr-4 py-1.5 md:py-2 text-[10px] md:text-xs text-[#888] placeholder-[#333] outline-none focus:border-[#10b981] w-[110px] sm:w-[150px] md:w-64 transition-all"
               />
             </div>
-            {/* THE FIX: Shrunk padding and text size on mobile cart button */}
+            {/* THE FIX: Replaced "Cart" text with SVG. Added count next to icon. Adjusted height to match search bar. */}
             <button
               onClick={openCart}
-              className="bg-[#10b981] text-[#141414] text-[10px] md:text-xs font-semibold px-3 md:px-6 py-2 md:py-2.5 rounded-lg hover:bg-[#059669] transition-colors whitespace-nowrap"
+              className="bg-[#10b981] text-[#141414] px-2 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-[#059669] transition-colors flex items-center gap-1.5 md:gap-2"
             >
-              Cart ({itemCount})
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 md:w-4 md:h-4"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              <span className="text-[10px] md:text-xs font-bold leading-none">{itemCount}</span>
             </button>
           </div>
         </nav>
