@@ -46,7 +46,7 @@ export default function ContactPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] flex flex-col">
+        <div className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] flex flex-col overflow-x-hidden">
 
             {/* Navbar */}
             <nav className="sticky top-0 z-50 bg-[#0C0C0C]/30 backdrop-blur-sm border-b border-white/5 px-6 md:px-8 h-20 flex items-center justify-center shrink-0">
@@ -58,8 +58,8 @@ export default function ContactPage() {
             </nav>
 
             {/* Main Content Area */}
-            <main className="flex-grow flex items-center justify-center px-6 py-4 md:py-20 relative">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#10b981] opacity-[0.03] blur-[100px] rounded-full pointer-events-none"></div>
+            <main className="flex-grow flex items-center justify-center px-6 py-4 md:py-20 relative overflow-x-hidden">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] max-w-full h-[500px] bg-[#10b981] opacity-[0.03] blur-[100px] rounded-full pointer-events-none"></div>
 
                 <div className="relative z-10 w-full max-w-xl bg-[#111] border border-[#1a1a1a] rounded-2xl p-6 md:p-12 shadow-2xl">
 
