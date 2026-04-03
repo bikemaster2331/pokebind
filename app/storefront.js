@@ -405,26 +405,34 @@ export default function Storefront({ cards }) {
                 <div
                   key={card.id}
                   onClick={() => setSelectedCard(card)} // Opens the modal
-                  className={`store-card bg-[#111] border border-[#1f1f1f] rounded-xl overflow-hidden transition-all duration-500 flex flex-col relative ${isOutOfStock
+                  // 1. ADDED: Inner shadows to create a "thick plastic/cardboard edge" feel and slightly adjusted base bg.
+                  className={`store-card bg-[#141414] border border-[#2a2a2a] rounded-xl overflow-hidden transition-all duration-500 flex flex-col relative shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),inset_0_-4px_10px_rgba(0,0,0,0.6)] ${isOutOfStock
                       ? 'opacity-60 cursor-default'
-                      : 'cursor-pointer hover:border-[#fff]/20 hover:scale-[1.02] group shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_60px_rgba(255,255,255,0.02)]'
+                      : 'cursor-pointer hover:border-[#fff]/20 hover:scale-[1.02] group hover:shadow-[0_20px_60px_rgba(255,255,255,0.02),inset_0_1px_1px_rgba(255,255,255,0.08),inset_0_-4px_10px_rgba(0,0,0,0.6)]'
                     }`}
                 >
-                  {/* Sold Out Overlay */}
+                  {/* 2. ADDED: The tactile noise texture layer. This is pure CSS/SVG math, so it loads instantly. */}
+                  <div 
+                    className="absolute inset-0 z-0 pointer-events-none opacity-[0.06] mix-blend-screen"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+                  />
+
+                  {/* Sold Out Overlay (Kept z-10 so it sits above texture) */}
                   {isOutOfStock && (
-                    <div className="absolute inset-0 z-10 bg-[#141414]/60 flex items-center justify-center rounded-xl">
+                    <div className="absolute inset-0 z-10 bg-[#141414]/60 flex items-center justify-center rounded-xl backdrop-blur-[1px]">
                       <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#555] border border-[#333] px-4 py-2 rounded-lg bg-[#141414]/80">Sold out</span>
                     </div>
                   )}
 
                   {/* TAG-Style Slab Label Wrapper */}
-                  <div className="p-4 pb-0 bg-[#111]">
-                    <div className="store-card-details relative pt-4 pb-1 px-2 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-[#111] mt-3.5 shadow-[inset_0_0_15px_rgba(0,0,0,0.3)]">
+                  {/* 3. MODIFIED: Removed bg-[#111] to bg-transparent so the noise texture shows through */}
+                  <div className="p-4 pb-0 bg-transparent relative z-10">
+                    <div className="store-card-details relative pt-4 pb-1 px-2 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-black/40 mt-3.5 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] backdrop-blur-sm">
 
                       {/* Top Centered VLT Tag */}
-                      <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#111] px-2">
-                        <div className="border-3 border-[#2e2e2e] px-1.5 py-0.1 bg-[#111]">
-                          <span className="font-zodiak font-extrabold text-[14px] text-white tracking-widest leading-none font-extrabold">VLT</span>
+                      <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#141414] px-2 rounded-sm">
+                        <div className="border-3 border-[#2e2e2e] px-1.5 py-0.1 bg-black/50 backdrop-blur-md">
+                          <span className="font-zodiak font-extrabold text-[14px] text-[#e0d8c8] tracking-widest leading-none">VLT</span>
                         </div>
                       </div>
 
@@ -433,7 +441,7 @@ export default function Storefront({ cards }) {
                         <div>
                           <div>
                             <p
-                              className="font-display font-medium text-white text-[12px] truncate leading-tight pr-1 cursor-help select-text"
+                              className="font-display font-medium text-white text-[12px] truncate leading-tight pr-1 cursor-help drop-shadow-md select-text"
                               onMouseEnter={() => setHoveredCard(card)}
                               onMouseLeave={() => setHoveredCard(null)}
                               onMouseMove={handleMouseMove}
@@ -441,16 +449,16 @@ export default function Storefront({ cards }) {
                               {card.name}
                             </p>
                           </div>
-                          <p className="text-[9px] text-white/40 mt-1 tracking-wide uppercase line-clamp-2 pr-1 select-text">{card.set_name}</p>
+                          <p className="text-[9px] text-white/50 mt-1 tracking-wide uppercase line-clamp-2 pr-1 select-text">{card.set_name}</p>
                         </div>
-                        <div className="text-left">
-                          <p className="font-display text-[#FAFAFA] text-xs">{formatCurrency(card.price)}</p>
+                        <div className="text-left mt-2">
+                          <p className="font-display text-[#FAFAFA] text-xs font-bold tracking-wide select-text">{formatCurrency(card.price)}</p>
                           {/* Rule 2: Reserved Badge */}
                           {stock === 0 && quantityInCart > 0 ? (
-                             <p className="text-[9px] text-[#10b981] mt-0.5 tracking-widest uppercase font-bold border border-[#10b981]/30 bg-[#10b981]/10 px-2 py-0.5 rounded inline-block">Reserved in cart</p>
+                             <p className="text-[8px] text-[#10b981] mt-1 tracking-widest uppercase font-bold border border-[#10b981]/30 bg-[#10b981]/10 px-2 py-0.5 rounded inline-block select-text">Reserved in cart</p>
                           ) : (
                             !isOutOfStock && stock <= 10 && (
-                              <p className="text-[9px] text-[#C9A844] mt-0.5 tracking-widest uppercase truncate">Only {stock} left</p>
+                              <p className="text-[9px] text-[#C9A844] mt-1 tracking-widest uppercase truncate font-medium select-text">Only {stock} left</p>
                             )
                           )}
                         </div>
@@ -461,17 +469,17 @@ export default function Storefront({ cards }) {
                         <div className="flex items-stretch justify-end">
                           <div className="flex items-center justify-center">
                             <span
-                              className="font-supreme text-[8px] text-[#fff] uppercase font-bold tracking-widest font-display rotate-180"
+                              className="font-supreme text-[8px] text-[#888] uppercase font-bold tracking-widest font-display rotate-180"
                               style={{ writingMode: 'vertical-rl' }}
                             >
                               Pkvault
                             </span>
                           </div>
                           <div className="flex flex-col items-center justify-center pr-0.5 pl-0.5 pb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-[#F0B626] p-1 rounded-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-[#F0B626] p-1 rounded-none drop-shadow-[0_0_8px_rgba(240,182,38,0.3)]">
                               <path d="M4 20a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" /><path d="m12.474 5.943 1.567 5.34a1 1 0 0 0 1.75.328l2.616-3.402" /><path d="m20 9-3 9" /><path d="m5.594 8.209 2.615 3.403a1 1 0 0 0 1.75-.329l1.567-5.34" /><path d="M7 18 4 9" /><circle cx="12" cy="4" r="2" /><circle cx="20" cy="7" r="2" /><circle cx="4" cy="7" r="2" />
                             </svg>
-                            <span className="font-supreme text-white text-[8px] font-bold -mt-1 tracking-widest">CARDS</span>
+                            <span className="font-supreme text-[#F0B626] text-[8px] font-bold -mt-1 tracking-widest">CARDS</span>
                           </div>
                         </div>
                       </div>
@@ -479,39 +487,40 @@ export default function Storefront({ cards }) {
                   </div>
 
                   <div
-                    className="store-card-image aspect-[3/4] flex flex-col items-center justify-center bg-transparent relative shrink-0 cursor-help"
+                    className="store-card-image aspect-[3/4] flex flex-col items-center justify-center bg-transparent relative shrink-0 cursor-help z-10"
                     onMouseEnter={() => setHoveredCard(card)}
                     onMouseLeave={() => setHoveredCard(null)}
                     onMouseMove={handleMouseMove}
                   >
                     {card.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img draggable="false" src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                      <img draggable="false" src={card.image_url} alt={card.name} className="w-full h-full object-cover drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
                     ) : (
-                      <span className="font-display text-xs text-[#333]">No Image</span>
+                      <span className="font-display text-xs text-[#555]">No Image</span>
                     )}
                   </div>
 
-                  <div className="store-card-bottom flex flex-col px-0 pt-3 pb-0 flex-grow justify-end bg-[#111]">
+                  {/* 4. MODIFIED: bg-[#111] to bg-transparent so bottom controls blend with textured card */}
+                  <div className="store-card-bottom flex flex-col px-4 pt-3 pb-4 flex-grow justify-end bg-transparent z-10">
                     <div className="store-card-controls w-full">
                       {quantityInCart > 0 ? (
-                        <div className="flex items-center justify-center border border-[#111] rounded-lg overflow-hidden w-full bg-transparent h-[44px]">
+                        <div className="flex items-center justify-center border border-[#333] rounded-lg overflow-hidden w-full bg-black/40 h-[44px] backdrop-blur-sm shadow-inner">
                           <button
                             onClick={(e) => { e.stopPropagation(); updateQuantity(card, quantityInCart - 1); }}
-                            className="h-full text-lg text-[#888] hover:text-white transition-colors flex-1 text-center hover:bg-[#222]"
+                            className="h-full text-lg text-[#888] hover:text-white transition-colors flex-1 text-center hover:bg-white/10"
                           >−</button>
-                          <span className="min-w-8 text-center text-lg text-[#e0d8c8] font-medium">{quantityInCart}</span>
+                          <span className="min-w-8 text-center text-lg text-[#10b981] font-bold">{quantityInCart}</span>
                           <button
                             onClick={(e) => { e.stopPropagation(); addToCart(card); }}
                             disabled={!canAddMore}
-                            className="h-full text-lg text-[#888] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed flex-1 text-center hover:bg-[#222]"
+                            className="h-full text-lg text-[#888] hover:text-white transition-colors disabled:opacity-20 disabled:cursor-not-allowed flex-1 text-center hover:bg-white/10"
                           >+</button>
                         </div>
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); addToCart(card); }}
                           disabled={!canAddMore}
-                          className="font-display w-full bg-transparent border border-[#111] text-[#888] text-xs h-[44px] rounded-lg hover:bg-[#10b981] hover:border-[#10b981] hover:text-[#141414] transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-semibold"
+                          className="font-display w-full bg-black/40 border border-[#333] text-[#aaa] text-xs h-[44px] rounded-lg hover:bg-[#10b981] hover:border-[#10b981] hover:text-[#0C0C0C] hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-bold backdrop-blur-sm"
                         >
                           {isOutOfStock ? 'Sold Out' : 'Add to cart'}
                         </button>
