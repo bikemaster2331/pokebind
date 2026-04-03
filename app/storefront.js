@@ -330,9 +330,18 @@ export default function Storefront({ cards }) {
         {/* Upgraded Premium Hero Section */}
         <div className="relative px-6 pt-16 pb-20 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
           {/* Foreground Content */}
-          <h1 className="relative z-10 font-display text-[14rem] text-[#e0d8c8] font-bold tracking-[0.001em] mb-6 drop-shadow-2xl">
-            PokéVault
-          </h1>
+          <div className="relative inline-block mt-12 mb-6">
+            {/* Snorlax Overlay */}
+            <img 
+              src="/assets/images/snore.png" 
+              alt=""
+              draggable="false"
+              className="absolute -top-32 left-1/2 -translate-x-1/2 w-64 h-auto z-20 pointer-events-none drop-shadow-2xl"
+            />
+            <h1 className="relative z-10 font-display text-[14rem] text-[#e0d8c8] font-bold tracking-[0.001em] drop-shadow-2xl">
+              PokéVault
+            </h1>
+          </div>
           <p className="text-[12px] text-[#fff] tracking-[0.3em] uppercase">
             pokemon packs for trainers
           </p>
