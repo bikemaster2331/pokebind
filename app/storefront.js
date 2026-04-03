@@ -267,11 +267,11 @@ export default function Storefront({ cards }) {
       )}
 
       <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
-        {/* THE FIX: Rebuilt Nav. Icons on the left, search/cart on the right. Shrunk search for mobile. */}
+        {/* THE FIX: Rebuilt Nav with Absolute-Left Icons to ensure static positioning across all pages. */}
         <nav className="sticky top-0 z-40 bg-[#0C0C0C]/90 backdrop-blur-md border-b border-[#1a1a1a] px-4 md:px-8 h-20 flex items-center justify-between">
 
-          {/* Top Left: Home, Shop & Contact Icons */}
-          <div className="flex items-center gap-1 md:gap-2 w-auto md:w-1/3">
+          {/* Top Left: Home, Shop & Contact Icons (Static Position) */}
+          <div className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 flex items-center gap-1 md:gap-2">
             <button
               onClick={() => router.push('/home')}
               className="text-[#444] hover:text-[#10b981] transition-colors p-2 -ml-2"
@@ -294,11 +294,8 @@ export default function Storefront({ cards }) {
             </button>
           </div>
 
-          {/* Centered Area (Now Empty for Minimalism) */}
-          <div className="hidden md:flex items-center justify-center w-1/3" />
-
-          {/* Right Actions: Search & Cart */}
-          <div className="flex items-center justify-end gap-2 md:gap-3 w-auto md:w-1/3">
+          {/* Right Area: Search & Cart (Pushed to the right) */}
+          <div className="ml-auto flex items-center justify-end gap-2 md:gap-3">
             <div className="relative group flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

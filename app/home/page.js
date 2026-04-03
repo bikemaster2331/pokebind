@@ -10,7 +10,7 @@ export default function HomePage() {
         <main className="min-h-screen bg-[#141414] bg-[linear-gradient(rgba(20,20,20,0.5),rgba(20,20,20,0.5)),url('/assets/images/sss.png')] bg-[length:auto_100%] md:bg-cover bg-[center_top_20%] bg-no-repeat text-[#e0d8c8] flex flex-col select-none">
 
             <nav className="sticky top-0 z-50 bg-[#0C0C0C]/30 backdrop-blur-sm border-b border-white/5 px-6 md:px-8 h-20 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-1 md:gap-2">
+                <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 flex items-center gap-1 md:gap-2">
                     <button
                         className="text-white transition-colors p-2 -ml-2"
                         title="Home"
