@@ -1,4 +1,14 @@
+/*
+  POKEVAULT - ADMIN INDEX PAGE (SERVER COMPONENT)
+  ----------------------------------------------
+  This page handles the server-side logic for the admin dashboard.
+  - Verifies admin authentication (via Supabase and ADMIN_EMAIL check).
+  - Fetches cards, orders, and order items from Supabase.
+  - Passes the data to the client-side AdminDashboard component.
+*/
+
 import { createSupabaseServer } from '../server'
+
 import { redirect } from 'next/navigation'
 import AdminDashboard from './dashboard'
 
