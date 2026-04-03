@@ -417,8 +417,8 @@ export default function Storefront({ cards }) {
                   <div className="p-3 md:p-4 pb-0 bg-transparent relative z-10">
                     <div className="store-card-details relative pt-4 pb-1 px-2 grid grid-cols-[1.5fr_1fr] border-1 border-[#2e2e2e] rounded-md bg-black/40 mt-3.5 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] backdrop-blur-sm">
 
-                      <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#141414] px-2 rounded-sm">
-                        <div className="border-3 border-[#2e2e2e] px-1.5 py-0.1 bg-black/50 backdrop-blur-md">
+                      <div className="absolute -top-[14px] left-1/2 -translate-x-1/2 bg-[#141414] px-1.5 rounded-sm">
+                        <div className="border-2 border-[#2e2e2e] px-1 py-0.1 bg-black/50 backdrop-blur-md">
                           <span className="font-zodiak font-extrabold text-[12px] md:text-[14px] text-[#e0d8c8] tracking-widest leading-none">VLT</span>
                         </div>
                       </div>
