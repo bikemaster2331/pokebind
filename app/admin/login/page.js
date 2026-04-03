@@ -43,17 +43,17 @@ export default function AdminLogin() {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 w-full max-w-sm">
-                <div className="mb-6">
-                    <h1 className="text-lg font-semibold">Admin login</h1>
-                    <p className="text-sm text-gray-500 mt-1">PokeVault dashboard</p>
+        <main className="min-h-screen bg-[#0C0C0C] flex items-center justify-center px-6">
+            <div className="bg-[#111] border border-[#1a1a1a] rounded-2xl p-8 w-full max-w-sm shadow-2xl">
+                <div className="mb-8">
+                    <h1 className="text-xl font-bold text-white tracking-tight uppercase">Admin Login</h1>
+                    <p className="text-xs text-[#666] mt-1.5 uppercase tracking-widest font-medium">PokeVault Dashboard</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
+                        <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-2">
+                            Email address
                         </label>
                         <input
                             type="email"
@@ -61,13 +61,13 @@ export default function AdminLogin() {
                             value={form.email}
                             onChange={handleChange}
                             required
-                            placeholder="admin@email.com"
-                            className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                            placeholder="admin@pokevault.ph"
+                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-[#C9A844] transition-colors placeholder-[#333]"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-2">
                             Password
                         </label>
                         <input
@@ -77,25 +77,26 @@ export default function AdminLogin() {
                             onChange={handleChange}
                             required
                             placeholder="••••••••"
-                            className="w-full border border-gray-300 text-black rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-[#C9A844] transition-colors placeholder-[#333]"
                         />
                     </div>
 
                     {error && (
-                        <p className="text-sm text-red-600">{error}</p>
+                        <p className="text-xs font-bold text-red-500 uppercase tracking-wide">{error}</p>
                     )}
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-yellow-400 text-black font-semibold py-2.5 rounded-xl hover:bg-yellow-500 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed text-sm"
+                        className="w-full bg-[#C9A844] text-[#0C0C0C] font-bold uppercase tracking-widest py-3.5 rounded-xl hover:bg-yellow-500 disabled:opacity-30 disabled:cursor-not-allowed text-xs transition-all mt-2"
                     >
-                        {isLoading ? 'Signing in...' : 'Sign in'}
+                        {isLoading ? 'Authenticating...' : 'Sign In'}
                     </button>
-                    <div className='text-center mt-3'>
+                    
+                    <div className='text-center mt-4'>
                         <a
                             href="/admin/forgot"
-                            className="text-xs text-[#666] hover:text-[#C9A844] transition-colors"
+                            className="text-[10px] text-[#444] hover:text-[#C9A844] font-bold uppercase tracking-widest transition-colors"
                         >
                             Forgot password?
                         </a>
@@ -103,5 +104,6 @@ export default function AdminLogin() {
                 </form>
             </div>
         </main>
+
     )
 }
