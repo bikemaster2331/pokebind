@@ -1,3 +1,11 @@
+/*
+  POKEVAULT - SERVER-SIDE SUPABASE SSR CLIENT
+  -----------------------------------------
+  This utility provides a Supabase client for Server Actions and 
+  Server-Side Rendering (SSR). It specifically handles cookie-based 
+  authentication as required by Next.js and @supabase/ssr.
+*/
+
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
