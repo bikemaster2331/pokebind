@@ -18,6 +18,6 @@ export default async function ShopPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <Storefront initialCards={cards || []} />
+    <Storefront cards={cards || []} />
   )
 }
