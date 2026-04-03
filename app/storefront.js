@@ -328,7 +328,7 @@ export default function Storefront({ cards }) {
         </nav>
 
         {/* Upgraded Premium Hero Section */}
-        <div className="relative px-6 py-32 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
+        <div className="relative px-6 pt-16 pb-20 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
           {/* Foreground Content */}
           <h1 className="relative z-10 font-display text-[14rem] text-[#e0d8c8] font-bold tracking-[0.001em] mb-6 drop-shadow-2xl">
             PokéVault
@@ -338,8 +338,8 @@ export default function Storefront({ cards }) {
           </p>
         </div>
 
-        <div className="px-6 md:px-16 lg:px-32 xl:px-40 py-6 max-w-[1800px] mx-auto">
-          <div className="flex items-center justify-between mb-24">
+        <div className="px-6 md:px-16 lg:px-32 xl:px-40 pt-0 pb-6 max-w-[1800px] mx-auto">
+          <div className="flex items-center justify-between mb-12">
             <p className="font-display font-medium text-lg text-[#fff] tracking-widest uppercase">{filtered.length} listings</p>
             <div className="flex items-center gap-12">
               <div className="flex items-center gap-3">
