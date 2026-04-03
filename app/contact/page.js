@@ -49,25 +49,23 @@ export default function ContactPage() {
         <div className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] flex flex-col">
 
             {/* Navbar */}
-            <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-8 h-20 grid grid-cols-3 items-center">
-                <div />
-                <div className="hidden md:flex items-center justify-center gap-10">
+            <nav className="sticky top-0 z-50 bg-[#0C0C0C]/30 backdrop-blur-sm border-b border-white/5 px-6 md:px-8 h-20 flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-8 md:gap-10">
                     <button onClick={() => router.push('/home')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Home</button>
                     <button onClick={() => router.push('/shop')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Shop</button>
                     <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium cursor-pointer">Contact</button>
                 </div>
-                <div />
             </nav>
 
             {/* Main Content Area */}
-            <main className="flex-grow flex items-center justify-center px-6 py-20 relative">
+            <main className="flex-grow flex items-center justify-center px-6 py-12 md:py-20 relative">
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#10b981] opacity-[0.03] blur-[100px] rounded-full pointer-events-none"></div>
 
-                <div className="relative z-10 w-full max-w-xl bg-[#111] border border-[#1a1a1a] rounded-2xl p-8 md:p-12 shadow-2xl">
+                <div className="relative z-10 w-full max-w-xl bg-[#111] border border-[#1a1a1a] rounded-2xl p-6 md:p-12 shadow-2xl">
 
                     <div className="text-center mb-10">
-                        <h1 className="font-display text-4xl text-white font-bold mb-2">Reach the Vault</h1>
-                        <p className="text-xs text-[#666] uppercase tracking-widest">Questions about an order? Let us know.</p>
+                        <h1 className="font-display text-3xl md:text-4xl text-white font-bold mb-2">Reach the Vault</h1>
+                        <p className="text-[10px] md:text-xs text-[#666] uppercase tracking-widest">Questions about an order? Let us know.</p>
                     </div>
 
                     {status === 'success' && (
