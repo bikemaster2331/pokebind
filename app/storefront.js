@@ -387,7 +387,7 @@ export default function Storefront({ cards }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-x-12 md:gap-y-24 xl:gap-x-16 xl:gap-y-32">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-12 md:gap-x-12 md:gap-y-24 xl:gap-x-16 xl:gap-y-32">
             {filtered.map((card) => {
               const stock = Number(card.stock_quantity ?? 0)
               const quantityInCart = cart[String(card.id)]?.quantity ?? 0
