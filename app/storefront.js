@@ -266,9 +266,9 @@ export default function Storefront({ cards }) {
         </div>
       )}
 
-      <main className="min-h-screen bg-[#141414] text-[#e0d8c8]">
+      <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
         {/* THE FIX: Rebuilt Nav. Icons on the left, search/cart on the right. Shrunk search for mobile. */}
-        <nav className="sticky top-0 z-40 bg-[#141414]/90 backdrop-blur-md border-b border-[#1a1a1a] px-4 md:px-8 h-20 flex items-center justify-between">
+        <nav className="sticky top-0 z-40 bg-[#0C0C0C]/90 backdrop-blur-md border-b border-[#1a1a1a] px-4 md:px-8 h-20 flex items-center justify-between">
 
           {/* Top Left: Home, Shop & Contact Icons */}
           <div className="flex items-center gap-1 md:gap-2 w-auto md:w-1/3">
