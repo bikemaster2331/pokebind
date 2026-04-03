@@ -17,7 +17,7 @@ export default function HomePage() {
                 <div />
             </nav>
 
-            <div className="flex-1 w-full max-w-[1800px] mx-auto px-12 py-20 flex flex-col">
+            <div className="flex-1 w-full max-w-[1800px] mx-auto px-12 pt-10 pb-20 flex flex-col">
                 <div className="grid grid-cols-2 gap-20 flex-1">
                     {/* Left Column: Headline */}
                     <div className="flex flex-col justify-start text-left">
