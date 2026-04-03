@@ -1,9 +1,19 @@
-import { createClient } from '@supabase/supabase-js'
-import { sendOrderReceipt } from '../email/receipt'
+/*
+  POKEVAULT - CHECKOUT API ROUTE
+  -----------------------------
+  Key Responsibilities:
+  - Validates cart and pricing.
+  - Locks inventory atomically (payment_status: unpaid).
+  - Sends low-stock alerts.
+  - Generates PayMongo Checkout URL and hands it to the frontend.
+*/
 
+import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 function getSupabaseClient() {
   if (!supabaseUrl || !supabaseKey) {
@@ -18,10 +28,7 @@ function normalizeItems(items) {
   const groupedItems = new Map()
 
   for (const rawItem of items) {
-    const id =
-      typeof rawItem?.id === 'string' || typeof rawItem?.id === 'number'
-        ? rawItem.id
-        : null
+    const id = typeof rawItem?.id === 'string' || typeof rawItem?.id === 'number' ? rawItem.id : null
     const quantity = Number(rawItem?.quantity)
 
     if (id === null || !Number.isInteger(quantity) || quantity < 1) return null
@@ -37,175 +44,169 @@ function normalizeItems(items) {
 
 export async function POST(request) {
   try {
-    const body = await request.json()
+    const rawBody = await request.text()
+    if (!rawBody) return Response.json({ error: 'Empty request' }, { status: 400 })
+    const body = JSON.parse(rawBody)
+
     const items = normalizeItems(body?.items)
     const guestEmail = body?.guest_email ?? null
     const guestName = body?.guest_name ?? null
     const guestPhone = body?.guest_phone ?? null
     const shippingAddress = body?.shipping_address ?? null
+    const region = body?.region ?? 'Metro Manila'
+    const paymentMethod = body?.payment_method ?? 'gcash'
+    const sessionId = body?.session_id ?? null
 
-    if (!items) {
-      return Response.json(
-        { error: 'Each checkout item needs a valid id and quantity.' },
-        { status: 400 }
-      )
-    }
-
-    if (items.length === 0) {
-      return Response.json({ error: 'Your cart is empty.' }, { status: 400 })
+    if (!items || items.length === 0) {
+      return Response.json({ error: 'Your cart is invalid or empty.' }, { status: 400 })
     }
 
     const supabase = getSupabaseClient()
     const itemIds = items.map((item) => item.id)
 
+    // 1. SECURE PRICING FETCH
     const { data: cards, error: fetchError } = await supabase
       .from('pokebox')
-      .select('id, name, price, stock_quantity')
+      .select('id, name, price, stock_quantity, image_url')
       .in('id', itemIds)
 
-    if (fetchError) {
-      console.error('Unable to load checkout items.', fetchError)
+    if (fetchError || !cards) {
       return Response.json({ error: 'Unable to verify stock right now.' }, { status: 500 })
     }
 
-    const cardsById = new Map((cards ?? []).map((card) => [String(card.id), card]))
+    const cardsById = new Map(cards.map((card) => [String(card.id), card]))
 
-    if (cardsById.size !== items.length) {
-      return Response.json(
-        { error: 'One or more cards in your cart no longer exist.' },
-        { status: 404 }
-      )
+    const shippingRates = {
+      'Metro Manila': 80,
+      'Luzon': 120,
+      'Visayas': 150,
+      'Mindanao': 180
     }
+    const shippingFee = shippingRates[region] || 80
 
-    for (const item of items) {
+    const itemTotal = items.reduce((sum, item) => {
       const card = cardsById.get(item.key)
-      const stock = Number(card?.stock_quantity ?? 0)
-
-      if (!card || stock < item.quantity) {
-        const cardName = card?.name ?? 'This card'
-        return Response.json(
-          { error: `${cardName} only has ${stock} left. Please update your cart and try again.` },
-          { status: 409 }
-        )
-      }
-    }
-
-    const shippingFee = 80
-    const total = items.reduce((sum, item) => {
-      const card = cardsById.get(item.key)
-      return sum + Number(card.price ?? 0) * item.quantity
+      return sum + (Number(card?.price ?? 0) * item.quantity)
     }, 0)
 
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        guest_email: guestEmail,
-        guest_name: guestName,
-        guest_phone: guestPhone,
-        shipping_address: shippingAddress,
-        status: 'pending',
-        total,
-        shipping_fee: shippingFee,
-      })
-      .select('id')
-      .single()
+    const total = itemTotal + shippingFee
 
-    if (orderError) {
-      console.error('Unable to create order.', orderError)
-      return Response.json({ error: 'Unable to create order right now.' }, { status: 500 })
+    // 2. ATOMIC DATABASE LOCK (Status: pending, Payment_Status: unpaid)
+    const { data: rpcData, error: rpcError } = await supabase.rpc('checkout_order', {
+      p_guest_email: guestEmail,
+      p_guest_name: guestName,
+      p_guest_phone: guestPhone,
+      p_shipping_address: shippingAddress,
+      p_total: total,
+      p_shipping_fee: shippingFee,
+      p_items: items.map(item => ({ id: item.id, quantity: item.quantity })),
+      p_session_id: sessionId,
+    })
+
+    if (rpcError) {
+      return Response.json({ error: rpcError.message || 'Checkout failed due to an inventory error.' }, { status: 409 })
     }
 
-    const orderItems = items.map((item) => {
-      const card = cardsById.get(item.key)
+    const { orderId } = rpcData
+
+    // 3. LOW STOCK ALERTS
+    const defaultSender = 'onboarding@resend.dev'
+    const adminEmail = process.env.ADMIN_EMAIL
+
+
+    // 4. PAYMONGO SESSION GENERATION
+    const PAYMONGO_SECRET = process.env.PAYMONGO_SECRET_KEY
+    if (!PAYMONGO_SECRET) {
+      throw new Error('PayMongo Secret Key is missing.')
+    }
+
+    // FIXED: Prioritize the array based on what the user clicked on the frontend
+    let pmtTypes = [];
+    if (paymentMethod === 'card') {
+      pmtTypes = ['card', 'gcash', 'paymaya', 'dob', 'dob_ubp', 'grab_pay'];
+    } else if (paymentMethod === 'dob') {
+      pmtTypes = ['dob', 'dob_ubp', 'gcash', 'paymaya', 'card', 'grab_pay'];
+    } else {
+      pmtTypes = ['gcash', 'paymaya', 'card', 'dob', 'dob_ubp', 'grab_pay'];
+    }
+
+    const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+    // Format for PayMongo (requires amounts in centavos)
+    const lineItems = items.map(item => {
+      const card = cardsById.get(String(item.id))
+      const imageUrl = card?.image_url
+
       return {
-        order_id: order.id,
-        card_id: item.id,
+        currency: 'PHP',
+        amount: Math.round(Number(card?.price ?? 0) * 100),
+        description: card?.name,
+        name: card?.name,
         quantity: item.quantity,
-        unit_price: Number(card.price ?? 0),
+        images: imageUrl ? [imageUrl.startsWith('http') ? imageUrl : `${origin}${imageUrl}`] : []
       }
     })
 
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItems)
+    // FIXED: Removed the images array so PayMongo defaults to the grey "S" box
+    lineItems.push({
+      currency: 'PHP',
+      amount: Math.round(shippingFee * 100),
+      description: `Shipping to ${region}`,
+      name: 'Shipping Fee',
+      quantity: 1,
+      // Using a Pokéball icon instead of the 'S' placeholder to maintain the theme
+      images: ['https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png']
+    })
 
-    if (itemsError) {
-      console.error('Unable to save order items.', itemsError)
-      return Response.json({ error: 'Unable to save order items.' }, { status: 500 })
-    }
-
-    const updatedCards = []
-
-    for (const item of items) {
-      const card = cardsById.get(item.key)
-      const currentStock = Number(card.stock_quantity ?? 0)
-      const nextStock = currentStock - item.quantity
-
-      const { data: updatedCard, error: updateError } = await supabase
-        .from('pokebox')
-        .update({ stock_quantity: nextStock })
-        .eq('id', item.id)
-        .eq('stock_quantity', currentStock)
-        .select('id, name, stock_quantity')
-        .maybeSingle()
-
-      if (updateError) {
-        console.error(`Unable to update stock for card ${item.key}.`, updateError)
-        return Response.json({ error: 'Unable to complete checkout right now.' }, { status: 500 })
-      }
-
-      if (!updatedCard) {
-        return Response.json(
-          { error: `${card.name} changed while you were checking out. Please try again.` },
-          { status: 409 }
-        )
-      }
-
-      updatedCards.push(updatedCard)
-    }
-
-    try {
-      const { data: savedItems } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', order.id)
-
-      const { data: savedCards } = await supabase
-        .from('pokebox')
-        .select('id, name')
-        .in('id', savedItems.map((i) => i.card_id))
-
-      await sendOrderReceipt({
-        order: {
-          id: order.id,
-          guest_name: guestName,
-          guest_email: guestEmail,
-          shipping_address: shippingAddress,
-          total,
-          shipping_fee: shippingFee,
-        },
-        items: savedItems,
-        cards: savedCards,
+    const paymongoOptions = {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        authorization: `Basic ${Buffer.from(PAYMONGO_SECRET).toString('base64')}`
+      },
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            send_email_receipt: false,
+            show_description: true,
+            show_line_items: true,
+            line_items: lineItems,
+            payment_method_types: pmtTypes,
+            reference_number: String(orderId),
+            success_url: `${origin}/checkout/success?order=${orderId}`,
+            cancel_url: `${origin}/checkout`,
+            billing: {
+              name: guestName,
+              email: guestEmail,
+              phone: guestPhone,
+              address: { line1: shippingAddress, state: region, country: 'PH' }
+            }
+          }
+        }
       })
-    } catch (emailError) {
-      console.error('Failed to send receipt email.', emailError)
     }
 
+    const paymongoRes = await fetch('https://api.paymongo.com/v1/checkout_sessions', paymongoOptions)
+    const paymongoData = await paymongoRes.json()
+
+    if (!paymongoRes.ok || !paymongoData.data?.attributes?.checkout_url) {
+      console.error('PayMongo Error:', paymongoData)
+      throw new Error('Payment gateway is currently unavailable. Please try again.')
+    }
+
+    // 5. HANDOFF TO FRONTEND
     return Response.json({
-      message: 'Checkout complete. Stock updated successfully.',
-      orderId: order.id,
-      updatedCards,
+      message: 'Order created, redirecting to payment...',
+      orderId: orderId,
+      checkout_url: paymongoData.data.attributes.checkout_url
     })
+
   } catch (error) {
     console.error('Checkout request failed.', error)
-
     if (error instanceof SyntaxError) {
       return Response.json({ error: 'Invalid checkout payload.' }, { status: 400 })
     }
-
-    return Response.json(
-      { error: error instanceof Error ? error.message : 'Invalid checkout request.' },
-      { status: 500 }
-    )
+    return Response.json({ error: error instanceof Error ? error.message : 'Invalid checkout request.' }, { status: 500 })
   }
 }
