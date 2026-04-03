@@ -321,7 +321,7 @@ export default function Storefront({ cards }) {
 
         {/* Hero Section */}
         {/* THE FIX: Changed padding for mobile. */}
-        <div className="relative px-4 md:px-6 pt-16 md:pt-32 pb-10 md:pb-16 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
+        <div className="relative px-4 md:px-6 pt-10 md:pt-32 pb-6 md:pb-12 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
           <div className="flex flex-col items-center md:items-start mb-2">
             <div className="flex items-center justify-center gap-2 md:gap-6 mb-0">
               {/* THE FIX: Dynamic text sizing using Viewport Width (13vw) for mobile, locking to 12rem on Desktop */}
@@ -338,13 +338,13 @@ export default function Storefront({ cards }) {
                 />
               </div>
             </div>
-            <p className="text-[10px] md:text-[16px] text-[#fff] tracking-[0.2em] md:tracking-[0.3em] uppercase md:ml-3 mt-4 md:mt-2 select-text text-center w-full">
+            <p className="text-[10px] md:text-[16px] text-[#fff] tracking-[0.2em] md:tracking-[0.3em] uppercase md:ml-3 mt-1.5 md:mt-2 select-text text-center w-full">
               Pokémon packs for trainers
             </p>
           </div>
         </div>
 
-        <div className="w-full flex justify-center py-8 md:py-12">
+        <div className="w-full flex justify-center py-4 md:py-8">
           <div className="w-full max-w-[1200px] h-px bg-gradient-to-r from-transparent via-[#1a1a1a] to-transparent" />
         </div>
 
