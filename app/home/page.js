@@ -21,7 +21,7 @@ export default function HomePage() {
                 <div className="grid grid-cols-2 gap-20 flex-1">
                     {/* Left Column: Headline */}
                     <div className="flex flex-col justify-start text-left">
-                        <h1 className="font-display text-8xl md:text-9xl text-[#e0d8c8] font-bold leading-tight mb-4 whitespace-nowrap">
+                        <h1 className="font-display text-[12rem] md:text-[16rem] text-[#e0d8c8] font-bold leading-tight mb-4 whitespace-nowrap">
                             PokéVault
                         </h1>
                     </div>
