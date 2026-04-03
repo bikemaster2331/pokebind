@@ -267,31 +267,38 @@ export default function Storefront({ cards }) {
       )}
 
       <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
-        {/* THE FIX: Rebuilt Nav with Absolute-Left Icons to ensure static positioning across all pages. */}
+        {/* Responsive Nav: Mobile Icons (Static Left) / Desktop Text (Centered) */}
         <nav className="sticky top-0 z-40 bg-[#0C0C0C]/90 backdrop-blur-md border-b border-[#1a1a1a] px-4 md:px-8 h-20 flex items-center justify-between">
 
-          {/* Top Left: Home, Shop & Contact Icons (Static Position) */}
-          <div className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 flex items-center gap-1 md:gap-2">
+          {/* MOBILE ONLY: 3-Icon Set (Absolute Left for Static Placement) */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex md:hidden items-center gap-1">
             <button
               onClick={() => router.push('/home')}
-              className="text-[#444] hover:text-[#10b981] transition-colors p-2 -ml-2"
+              className="text-[#444] hover:text-white transition-colors p-2 -ml-2"
               title="Home"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5 md:w-5 md:h-5 text-[#444]"><path d="M12 18v4"/><path d="m17 18 1.956-11.468"/><path d="m3 8 7.82-5.615a2 2 0 0 1 2.36 0L21 8"/><path d="M4 18h16"/><path d="M7 18 5.044 6.532"/><circle cx="12" cy="10" r="2"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5 text-[#444]"><path d="M12 18v4"/><path d="m17 18 1.956-11.468"/><path d="m3 8 7.82-5.615a2 2 0 0 1 2.36 0L21 8"/><path d="M4 18h16"/><path d="M7 18 5.044 6.532"/><circle cx="12" cy="10" r="2"/></svg>
             </button>
             <button
               className="text-white transition-colors p-2"
               title="Shop"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5 md:w-5 md:h-5"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/></svg>
             </button>
             <button
               onClick={() => router.push('/contact')}
-              className="text-[#444] hover:text-[#10b981] transition-colors p-2"
+              className="text-[#444] hover:text-white transition-colors p-2"
               title="Contact"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5 md:w-5 md:h-5 text-[#444]"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5 text-[#444]"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
             </button>
+          </div>
+
+          {/* DESKTOP ONLY: Centered Text Links */}
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-10">
+            <button onClick={() => router.push('/home')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Home</button>
+            <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium cursor-pointer">Shop</button>
+            <button onClick={() => router.push('/contact')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Contact</button>
           </div>
 
           {/* Right Area: Search & Cart (Pushed to the right) */}
