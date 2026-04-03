@@ -58,12 +58,12 @@ export default function ContactPage() {
             </nav>
 
             {/* Main Content Area */}
-            <main className="flex-grow flex items-center justify-center px-6 py-12 md:py-20 relative">
+            <main className="flex-grow flex items-center justify-center px-6 py-8 md:py-20 relative">
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#10b981] opacity-[0.03] blur-[100px] rounded-full pointer-events-none"></div>
 
                 <div className="relative z-10 w-full max-w-xl bg-[#111] border border-[#1a1a1a] rounded-2xl p-6 md:p-12 shadow-2xl">
 
-                    <div className="text-center mb-10">
+                    <div className="text-center mb-6 md:mb-10">
                         <h1 className="font-display text-3xl md:text-4xl text-white font-bold mb-2">Reach the Vault</h1>
                         <p className="text-[10px] md:text-xs text-[#666] uppercase tracking-widest">Questions about an order? Let us know.</p>
                     </div>
@@ -80,10 +80,10 @@ export default function ContactPage() {
                         </div>
                     )}
 
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <div>
-                                <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-2">Trainer Name *</label>
+                                <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-1.5">Trainer Name *</label>
                                 <input
                                     type="text"
                                     name="name"
@@ -95,7 +95,7 @@ export default function ContactPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-2">Email *</label>
+                                <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-1.5">Email *</label>
                                 <input
                                     type="email"
                                     name="email"
@@ -109,7 +109,7 @@ export default function ContactPage() {
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-2">Subject</label>
+                            <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-1.5">Subject</label>
                             <input
                                 type="text"
                                 name="subject"
@@ -121,14 +121,14 @@ export default function ContactPage() {
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-2">Message *</label>
+                            <label className="block text-[10px] font-bold text-[#666] uppercase tracking-widest mb-1.5">Message *</label>
                             <textarea
                                 name="message"
                                 value={formData.message}
                                 onChange={handleChange}
                                 required
-                                rows="5"
-                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-[#10b981] transition-colors resize-none"
+                                rows="3"
+                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-3 text-sm outline-none focus:border-[#10b981] transition-colors resize-none md:rows-5"
                                 placeholder="How can we help?"
                             ></textarea>
                         </div>
@@ -143,7 +143,7 @@ export default function ContactPage() {
                     </form>
 
                     {/* Direct Email Fallback */}
-                    <div className="mt-10 pt-8 border-t border-[#1a1a1a] text-center">
+                    <div className="mt-6 md:mt-10 pt-6 md:pt-8 border-t border-[#1a1a1a] text-center">
                         <p className="text-[10px] text-[#666] uppercase tracking-widest mb-1.5">Direct Line</p>
                         <a
                             href="mailto:[EMAIL_ADDRESS]"
