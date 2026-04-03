@@ -77,9 +77,17 @@ export default function HomePage() {
                 </div>
             </div>
 
-            <footer className="border-t border-white/5 px-6 md:px-8 py-6 text-center bg-[#0C0C0C]/30 backdrop-blur-sm shrink-0">
-                <p className="text-[10px] text-[#666] tracking-widest uppercase select-text">
-                    © 2026 PokéVault · Philippines
+            <footer className="border-t border-[#1a1a1a] px-6 md:px-8 py-6 text-center bg-[#0C0C0C]/30 backdrop-blur-sm shrink-0">
+                <p className="text-[10px] text-[#333] tracking-widest uppercase select-text">
+                    © 2026 PokéVault · Philippines ·{' '}
+                    <a
+                        href="https://github.com/bikemaster2331"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-white transition-colors cursor-pointer"
+                    >
+                        mll
+                    </a>
                 </p>
             </footer>
         </main>
