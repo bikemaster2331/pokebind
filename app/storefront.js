@@ -485,10 +485,10 @@ export default function Storefront({ cards }) {
                     )}
                   </div>
 
-                  <div className="store-card-bottom flex flex-col px-3 md:px-4 pt-3 pb-3 md:pb-4 flex-grow justify-end bg-transparent z-10">
+                  <div className="store-card-bottom flex flex-col px-3 md:px-4 pt-2 pb-2 md:pb-3 flex-grow justify-end bg-transparent z-10">
                     <div className="store-card-controls w-full">
                       {quantityInCart > 0 ? (
-                        <div className="flex items-center justify-center border border-[#333] rounded-lg overflow-hidden w-full bg-black/40 h-[40px] md:h-[44px] backdrop-blur-sm shadow-inner">
+                        <div className="flex items-center justify-center border border-[#333] rounded-lg overflow-hidden w-full bg-black/40 h-[36px] md:h-[44px] backdrop-blur-sm shadow-inner">
                           <button
                             onClick={(e) => { e.stopPropagation(); updateQuantity(card, quantityInCart - 1); }}
                             className="h-full text-lg text-[#888] md:hover:text-white transition-colors flex-1 text-center md:hover:bg-white/10 active:bg-white/20"
@@ -504,7 +504,7 @@ export default function Storefront({ cards }) {
                         <button
                           onClick={(e) => { e.stopPropagation(); addToCart(card); }}
                           disabled={!canAddMore}
-                          className="font-display w-full bg-black/40 border border-[#333] text-[#aaa] text-[10px] md:text-xs h-[40px] md:h-[44px] rounded-lg md:hover:bg-[#10b981] md:hover:border-[#10b981] md:hover:text-[#0C0C0C] md:hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] active:bg-[#10b981] active:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-bold backdrop-blur-sm"
+                          className="font-display w-full bg-black/40 border border-[#333] text-[#aaa] text-[10px] md:text-xs h-[36px] md:h-[44px] rounded-lg md:hover:bg-[#10b981] md:hover:border-[#10b981] md:hover:text-[#0C0C0C] md:hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] active:bg-[#10b981] active:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-bold backdrop-blur-sm"
                         >
                           {isOutOfStock ? 'Sold Out' : 'Add to cart'}
                         </button>
