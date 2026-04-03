@@ -340,13 +340,16 @@ export default function Storefront({ cards }) {
                 src="/assets/images/snore.png" 
                 alt=""
                 draggable="false"
-                className="w-64 h-auto z-20 pointer-events-none drop-shadow-2xl translate-y-6"
+                className="w-72 h-auto z-20 pointer-events-none drop-shadow-2xl translate-y-6"
               />
             </div>
           </div>
           <p className="text-[12px] text-[#fff] tracking-[0.3em] uppercase">
             pokemon packs for trainers
           </p>
+        </div>
+        <div className="w-full flex justify-center py-12">
+          <div className="w-full max-w-[1200px] h-px bg-gradient-to-r from-transparent via-[#1a1a1a] to-transparent" />
         </div>
 
         <div className="px-6 md:px-16 lg:px-32 xl:px-40 pt-0 pb-6 max-w-[1800px] mx-auto">
