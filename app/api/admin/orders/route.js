@@ -1,4 +1,14 @@
+/*
+  POKEVAULT - ADMIN ORDERS API
+  ---------------------------
+  Backend API for managing customer orders.
+  - PATCH: Update order status (pending -> shipped).
+  - Triggers 'shipped' notification emails to customers.
+  - Required Header: Admin authentication check (isAdmin).
+*/
+
 import { createClient } from '@supabase/supabase-js'
+
 import { sendShippedNotification } from '../../email/receipt'
 import { createSupabaseServer } from '../../../server'
 
