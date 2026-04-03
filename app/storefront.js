@@ -266,7 +266,7 @@ export default function Storefront({ cards }) {
   })
 
   return (
-    <div className="min-h-screen bg-[#141414] text-[#e0d8c8] relative">
+    <div className="min-h-screen bg-[#141414] text-[#e0d8c8] relative select-none">
       {/* Global Tooltip */}
       {hoveredCard && (
         <div
@@ -328,25 +328,29 @@ export default function Storefront({ cards }) {
         </nav>
 
         {/* Upgraded Premium Hero Section */}
-        <div className="relative px-6 pt-16 pb-20 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
+        {/* 1. Reduced pt-16 (64px) to pt-8 (32px), and pb-20 (80px) to pb-12 (48px) */}
+        <div className="relative px-6 pt-32 pb-16 border-b border-[#141414] text-center overflow-hidden flex flex-col items-center justify-center">
           {/* Foreground Content */}
-          <div className="flex flex-col items-start mb-6">
-            <div className="flex items-center gap-6 mb-2">
-              <h1 className="relative z-10 font-display text-[12rem] text-[#e0d8c8] font-bold tracking-[0.001em] drop-shadow-2xl">
+          {/* 2. Reduced mb-6 to mb-2 to pull the subtitle closer */}
+          <div className="flex flex-col items-start mb-2">
+            <div className="flex items-center gap-6 mb-0">
+              {/* 3. ADDED leading-none to kill the massive invisible box around the text */}
+              <h1 className="relative z-10 font-display text-[12rem] text-[#e0d8c8] font-bold tracking-[0.001em] drop-shadow-2xl leading-none select-text">
                 PokéVault
               </h1>
               {/* Snorlax Overlay - Now Inline */}
               <div className="relative">
-                <img 
-                  src="/assets/images/snore.png" 
+                <img
+                  src="/assets/images/snore.png"
                   alt=""
                   draggable="false"
                   className="w-72 h-auto z-20 pointer-events-none drop-shadow-2xl translate-y-6"
                 />
               </div>
             </div>
-            <p className="text-[12px] text-[#fff] tracking-[0.3em] uppercase ml-1">
-              pokemon packs for trainers
+            {/* Added a slight negative top margin just in case the font baseline is weird */}
+            <p className="text-[16px] text-[#fff] tracking-[0.3em] uppercase ml-3 mt-2 select-text">
+              Pokémon packs for trainers
             </p>
           </div>
         </div>
@@ -429,7 +433,7 @@ export default function Storefront({ cards }) {
                         <div>
                           <div>
                             <p
-                              className="font-display font-medium text-white text-[12px] truncate leading-tight pr-1 cursor-help"
+                              className="font-display font-medium text-white text-[12px] truncate leading-tight pr-1 cursor-help select-text"
                               onMouseEnter={() => setHoveredCard(card)}
                               onMouseLeave={() => setHoveredCard(null)}
                               onMouseMove={handleMouseMove}
@@ -437,7 +441,7 @@ export default function Storefront({ cards }) {
                               {card.name}
                             </p>
                           </div>
-                          <p className="text-[9px] text-white/40 mt-1 tracking-wide uppercase line-clamp-2 pr-1">{card.set_name}</p>
+                          <p className="text-[9px] text-white/40 mt-1 tracking-wide uppercase line-clamp-2 pr-1 select-text">{card.set_name}</p>
                         </div>
                         <div className="text-left">
                           <p className="font-display text-[#FAFAFA] text-xs">{formatCurrency(card.price)}</p>
@@ -591,8 +595,8 @@ export default function Storefront({ cards }) {
                   </span>
                 </div>
 
-                <h2 className="font-display text-4xl text-white font-bold mt-4 mb-2">{selectedCard.name}</h2>
-                <p className="text-sm text-[#888] uppercase tracking-widest mb-6">Set: {selectedCard.set_name} · {selectedCard.pack_type}</p>
+                <h2 className="font-display text-4xl text-white font-bold mt-4 mb-2 select-text">{selectedCard.name}</h2>
+                <p className="text-sm text-[#888] uppercase tracking-widest mb-6 select-text">Set: {selectedCard.set_name} · {selectedCard.pack_type}</p>
 
                 <div className="flex items-end gap-4 mb-10 pb-10 border-b border-[#2a2a2a]">
                   <p className="font-display text-4xl text-[#FAFAFA]">{formatCurrency(selectedCard.price)}</p>
@@ -636,7 +640,7 @@ export default function Storefront({ cards }) {
         {/* --- END POPUP MODAL --- */}
 
         <footer className="border-t border-[#1a1a1a] px-8 py-6 text-center mt-20">
-          <p className="text-[10px] text-[#333] tracking-widest uppercase">
+          <p className="text-[10px] text-[#333] tracking-widest uppercase select-text">
             © 2026 PokéVault · Philippines ·{' '}
             <a
               href="https://github.com/bikemaster2331"
