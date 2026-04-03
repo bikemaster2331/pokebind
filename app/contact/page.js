@@ -53,7 +53,7 @@ export default function ContactPage() {
                 <div />
                 <div className="hidden md:flex items-center justify-center gap-10">
                     <button onClick={() => router.push('/home')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Home</button>
-                    <button onClick={() => router.push('/')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Shop</button>
+                    <button onClick={() => router.push('/shop')} className="text-xs text-[#444] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Shop</button>
                     <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium cursor-pointer">Contact</button>
                 </div>
                 <div />

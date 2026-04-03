@@ -171,7 +171,7 @@ export default function CheckoutPage() {
       <nav className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/shop')}
             className="text-sm text-gray-500 hover:text-black"
           >
             ← Back

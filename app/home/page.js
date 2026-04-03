@@ -14,7 +14,7 @@ export default function HomePage() {
                 <div />
                 <div className="hidden md:flex items-center justify-center gap-10">
                     <button className="text-xs text-white tracking-widest uppercase transition-colors font-medium cursor-pointer">Home</button>
-                    <button onClick={() => router.push('/')} className="text-xs text-[#888] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Shop</button>
+                    <button onClick={() => router.push('/shop')} className="text-xs text-[#888] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Shop</button>
                     <button onClick={() => router.push('/contact')} className="text-xs text-[#888] hover:text-white tracking-widest uppercase transition-colors cursor-pointer">Contact</button>
                 </div>
                 <div />
@@ -40,7 +40,7 @@ export default function HomePage() {
                                 Authenticated Pokémon booster packs and bundles, shipped across the Philippines.
                             </p>
                             <button
-                                onClick={() => router.push('/')}
+                                onClick={() => router.push('/shop')}
                                 className="bg-[#10b981] text-[#0C0C0C] text-sm font-bold uppercase tracking-widest px-20 py-4 rounded-xl hover:bg-[#059669] transition-all cursor-pointer shadow-[0_0_30px_rgba(16,185,129,0.15)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]"
                             >
                                 Browse packs

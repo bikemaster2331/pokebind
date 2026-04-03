@@ -23,7 +23,7 @@ function SuccessContent() {
         <p className="text-sm text-gray-500 mb-6">Your order has been received. We&apos;ll send you a confirmation email shortly.</p>
 
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/shop')}
           className="bg-[#10b981] text-white font-medium px-6 py-2.5 rounded-xl hover:bg-[#059669] text-sm transition-colors"
         >
           Back to shop
