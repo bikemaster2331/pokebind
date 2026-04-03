@@ -42,7 +42,7 @@ function sanitizeCart(savedCart, cards) {
 
 function CartPanel({ cartItems, itemCount, subtotal, onAdd, onCheckout, onDecrease, onRemove, onClose, checkoutFeedback, checkoutFeedbackTone }) {
   return (
-    <div className="flex flex-col h-full bg-[#0C0C0C]">
+    <div className="flex flex-col h-full bg-[#141414]">
       <div className="flex items-center justify-between px-6 py-5 border-b border-[#1e1e1e]">
         <div>
           <h3 className="font-display text-xl text-[#e0d8c8]">Trainer cart</h3>
@@ -103,7 +103,7 @@ function CartPanel({ cartItems, itemCount, subtotal, onAdd, onCheckout, onDecrea
           <button
             onClick={onCheckout}
             disabled={itemCount === 0}
-            className="w-full bg-[#10b981] text-[#0C0C0C] font-medium py-3 rounded-xl text-sm tracking-wider hover:bg-[#059669] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-[#10b981] text-[#141414] font-medium py-3 rounded-xl text-sm tracking-wider hover:bg-[#059669] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Proceed to checkout
           </button>
@@ -266,7 +266,7 @@ export default function Storefront({ cards }) {
   })
 
   return (
-    <div className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] relative">
+    <div className="min-h-screen bg-[#141414] text-[#e0d8c8] relative">
       {/* Global Tooltip */}
       {hoveredCard && (
         <div
@@ -282,8 +282,8 @@ export default function Storefront({ cards }) {
           </div>
         </div>
       )}
-      <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
-        <nav className="sticky top-0 z-10 bg-[#0C0C0C] border-b border-[#1a1a1a] px-8 h-20 grid grid-cols-3 items-center">
+      <main className="min-h-screen bg-[#141414] text-[#e0d8c8]">
+        <nav className="sticky top-0 z-10 bg-[#141414] border-b border-[#1a1a1a] px-8 h-20 grid grid-cols-3 items-center">
           {/* Left Spacer */}
           <div />
 
@@ -320,7 +320,7 @@ export default function Storefront({ cards }) {
             </div>
             <button
               onClick={openCart}
-              className="bg-[#10b981] text-[#0C0C0C] text-xs font-semibold px-6 py-2.5 rounded-lg hover:bg-[#059669] transition-colors"
+              className="bg-[#10b981] text-[#141414] text-xs font-semibold px-6 py-2.5 rounded-lg hover:bg-[#059669] transition-colors"
             >
               Cart ({itemCount})
             </button>
@@ -392,8 +392,8 @@ export default function Storefront({ cards }) {
                 >
                   {/* Sold Out Overlay */}
                   {isOutOfStock && (
-                    <div className="absolute inset-0 z-10 bg-[#0C0C0C]/60 flex items-center justify-center rounded-xl">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#555] border border-[#333] px-4 py-2 rounded-lg bg-[#0C0C0C]/80">Sold out</span>
+                    <div className="absolute inset-0 z-10 bg-[#141414]/60 flex items-center justify-center rounded-xl">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#555] border border-[#333] px-4 py-2 rounded-lg bg-[#141414]/80">Sold out</span>
                     </div>
                   )}
 
@@ -491,7 +491,7 @@ export default function Storefront({ cards }) {
                         <button
                           onClick={(e) => { e.stopPropagation(); addToCart(card); }}
                           disabled={!canAddMore}
-                          className="font-display w-full bg-transparent border border-[#111] text-[#888] text-xs h-[44px] rounded-lg hover:bg-[#10b981] hover:border-[#10b981] hover:text-[#0C0C0C] transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-semibold"
+                          className="font-display w-full bg-transparent border border-[#111] text-[#888] text-xs h-[44px] rounded-lg hover:bg-[#10b981] hover:border-[#10b981] hover:text-[#141414] transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-wider font-semibold"
                         >
                           {isOutOfStock ? 'Sold Out' : 'Add to cart'}
                         </button>
@@ -546,7 +546,7 @@ export default function Storefront({ cards }) {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Left Side: Big Image */}
-              <div className="w-full md:w-1/2 bg-[#0C0C0C] p-8 flex items-center justify-center min-h-[300px]">
+              <div className="w-full md:w-1/2 bg-[#141414] p-8 flex items-center justify-center min-h-[300px]">
                 {selectedCard.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -601,7 +601,7 @@ export default function Storefront({ cards }) {
                       openCart();
                     }}
                     disabled={Number(selectedCard.stock_quantity) <= (cart[String(selectedCard.id)]?.quantity ?? 0)}
-                    className="w-full bg-[#10b981] text-[#0C0C0C] font-bold uppercase tracking-widest py-4 rounded-xl hover:bg-[#059669] transition-all disabled:opacity-40"
+                    className="w-full bg-[#10b981] text-[#141414] font-bold uppercase tracking-widest py-4 rounded-xl hover:bg-[#059669] transition-all disabled:opacity-40"
                   >
                     {Number(selectedCard.stock_quantity) <= (cart[String(selectedCard.id)]?.quantity ?? 0) ? 'Max in Cart' : 'Add to Cart'}
                   </button>
