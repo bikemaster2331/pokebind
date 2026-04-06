@@ -13,9 +13,10 @@
 'use client'
 
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowser } from '../browser'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
     style: 'currency',
@@ -39,6 +40,35 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     const [activeTab, setActiveTab] = useState('orders')
     const [isSigningOut, setIsSigningOut] = useState(false)
 
+    // Lifted Calendar State
+    const [selectedDate, setSelectedDate] = useState(null)
+    const [currentMonth, setCurrentMonth] = useState(new Date())
+    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(true)
+
+    // Build order count map by day key "YYYY-MM-DD"
+    const ordersByDay = useMemo(() => {
+        const map = {}
+        orders.forEach((order) => {
+            const d = new Date(order.created_at)
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+            if (!map[key]) map[key] = []
+            map[key].push(order)
+        })
+        return map
+    }, [orders])
+
+    // Derived Stats
+    const displayOrders = useMemo(() => {
+        if (!selectedDate) return orders
+        return ordersByDay[selectedDate] ?? []
+    }, [selectedDate, orders, ordersByDay])
+
+    const displayRevenue = useMemo(() => {
+        return displayOrders
+            .filter(o => o.status === 'shipped')
+            .reduce((sum, o) => sum + (o.total ?? 0), 0)
+    }, [displayOrders])
+
     async function handleSignOut() {
         setIsSigningOut(true)
         const supabase = createSupabaseBrowser()
@@ -47,7 +77,7 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     }
 
     return (
-        <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8]">
+        <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] relative">
             <nav className="bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 py-4">
                 <div className="max-w-9xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -68,33 +98,71 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                     </div>
                 </div>
             </nav>
+            
+            {/* Calendar Trigger (Top Right of Screen) */}
+            <div className="absolute top-[85px] right-6 z-20 flex flex-col items-end">
+                <button 
+                    onClick={() => setIsCalendarCollapsed(!isCalendarCollapsed)}
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[#111] border border-[#1a1a1a] px-4 py-2 rounded-lg text-[#aaa] hover:text-white hover:border-[#2e2e2e] transition-all"
+                >
+                    <svg className={`w-3 h-3 transition-transform ${isCalendarCollapsed ? '-rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <span>{isCalendarCollapsed ? 'Show Calendar' : 'Hide Calendar'}</span>
+                </button>
 
-            <div className="max-w-6xl mx-auto px-6 py-24">
+                {!isCalendarCollapsed && (
+                    <div className="mt-2 w-72 bg-[#111] border border-[#1a1a1a] rounded-xl p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Calendar 
+                            currentMonth={currentMonth}
+                            setCurrentMonth={setCurrentMonth}
+                            selectedDate={selectedDate}
+                            setSelectedDate={setSelectedDate}
+                            ordersByDay={ordersByDay}
+                        />
+                    </div>
+                )}
+            </div>
+
+            <div className="max-w-6xl mx-auto px-6 py-24 relative">
+
+                {/* Date Header */}
+                <div className="mb-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-1">Showing Orders for</p>
+                    <h2 className="text-xl font-bold text-white uppercase tracking-tight">
+                        {selectedDate ? formatDate(selectedDate + 'T00:00:00') : 'All-time Overview'}
+                    </h2>
+                </div>
+
                 <div className="grid grid-cols-3 gap-4 mb-8">
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total packs</p>
                         <p className="text-2xl font-bold mt-1 text-white">{cards.length}</p>
                     </div>
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total orders</p>
-                        <p className="text-2xl font-bold mt-1 text-white">{orders.length}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
+                            {selectedDate ? 'Orders for today' : 'Total orders'}
+                        </p>
+                        <p className="text-2xl font-bold mt-1 text-white">{displayOrders.length}</p>
                     </div>
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Revenue</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
+                            {selectedDate ? 'Revenue for today' : 'Revenue'}
+                        </p>
                         <p className="text-2xl font-bold mt-1 text-[#3e9c35]">
-                            + {formatCurrency(orders.filter(o => o.status === 'shipped').reduce((sum, o) => sum + (o.total ?? 0), 0))}
+                            + {formatCurrency(displayRevenue)}
                         </p>
                     </div>
                 </div>
 
                 <div className="flex gap-2 mb-6">
-                    {['orders', 'packs', 'add pack'].map((tab) => (
+                    {['analytics', 'orders', 'packs', 'add pack'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab
-                                    ? 'bg-[#C9A844] text-[#0C0C0C]'
-                                    : 'bg-[#1a1a1a] border border-[#2a2a2a] text-[#666] hover:bg-[#222] hover:text-white'
+                                ? 'bg-[#C9A844] text-[#0C0C0C]'
+                                : 'bg-[#1a1a1a] border border-[#2a2a2a] text-[#666] hover:bg-[#222] hover:text-white'
                                 }`}
                         >
                             {tab}
@@ -102,8 +170,19 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                     ))}
                 </div>
 
+                {activeTab === 'analytics' && (
+                    <AnalyticsTab orders={orders} orderItems={orderItems} cards={cards} />
+                )}
                 {activeTab === 'orders' && (
-                    <OrdersTab orders={orders} orderItems={orderItems} cards={cards} router={router} />
+                    <OrdersTab 
+                        orders={orders} 
+                        orderItems={orderItems} 
+                        cards={cards} 
+                        router={router} 
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        ordersByDay={ordersByDay}
+                    />
                 )}
                 {activeTab === 'packs' && (
                     <CardsTab cards={cards} router={router} />
@@ -116,13 +195,10 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     )
 }
 
-function OrdersTab({ orders, orderItems, cards, router }) {
+function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelectedDate, ordersByDay }) {
     const [updatingId, setUpdatingId] = useState(null)
     const [statusFilter, setStatusFilter] = useState('all')
     const [expandedOrders, setExpandedOrders] = useState(new Set())
-    const [currentMonth, setCurrentMonth] = useState(new Date())
-    const [selectedDate, setSelectedDate] = useState(null)
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(true)
 
     async function markAsShipped(orderId) {
         setUpdatingId(orderId)
@@ -145,31 +221,6 @@ function OrdersTab({ orders, orderItems, cards, router }) {
         setExpandedOrders(newExpanded)
     }
 
-    // Calendar helpers
-    const year = currentMonth.getFullYear()
-    const month = currentMonth.getMonth()
-    const firstDay = new Date(year, month, 1).getDay()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-
-    const prevMonth = () => {
-        setCurrentMonth(new Date(year, month - 1, 1))
-        setSelectedDate(null)
-    }
-    const nextMonth = () => {
-        setCurrentMonth(new Date(year, month + 1, 1))
-        setSelectedDate(null)
-    }
-
-    // Build order count map by day key "YYYY-MM-DD"
-    const ordersByDay = {}
-    orders.forEach((order) => {
-        const d = new Date(order.created_at)
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-        if (!ordersByDay[key]) ordersByDay[key] = []
-        ordersByDay[key].push(order)
-    })
-
     // Filter orders
     let filteredOrders = orders
     if (selectedDate) {
@@ -179,115 +230,16 @@ function OrdersTab({ orders, orderItems, cards, router }) {
         filteredOrders = filteredOrders.filter((o) => o.status === statusFilter)
     }
 
-    const today = new Date()
-    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-
-    // Build calendar grid cells
-    const calendarCells = []
-    for (let i = 0; i < firstDay; i++) calendarCells.push(null)
-    for (let d = 1; d <= daysInMonth; d++) calendarCells.push(d)
-
     if (orders.length === 0) {
         return <p className="text-sm text-gray-400">No orders yet.</p>
     }
 
     return (
         <div className="space-y-4">
-            {/* Calendar Header with Toggle */}
-            <div className="flex items-center justify-between mb-10">
-                <button 
-                    onClick={() => setIsCalendarCollapsed(!isCalendarCollapsed)}
-                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#aaa] hover:text-white transition-colors"
-                >
-                    <svg className={`w-3 h-3 transition-transform ${isCalendarCollapsed ? '-rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
-                    </svg>
-                    <span>{isCalendarCollapsed ? 'Show Calendar View' : 'Hide Calendar View'}</span>
-                </button>
-            </div>
-
-            {/* Calendar */}
-            {!isCalendarCollapsed && (
-                <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-3 mb-4 max-w-sm">
-                    <div className="flex items-center justify-between mb-2 px-1">
-                        <button onClick={prevMonth} className="text-[#555] hover:text-white transition-colors p-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-[#aaa]">{monthName}</h3>
-                        <button onClick={nextMonth} className="text-[#555] hover:text-white transition-colors p-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {/* Day headers */}
-                    <div className="grid grid-cols-7 gap-1 mb-1">
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                            <div key={day} className="text-center text-[9px] font-bold uppercase tracking-widest text-[#333] py-1">
-                                {day}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Day cells */}
-                    <div className="grid grid-cols-7 gap-0">
-                        {calendarCells.map((day, i) => {
-                            if (day === null) return <div key={`empty-${i}`} />
-
-                            const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                            const dayOrders = ordersByDay[dayKey] ?? []
-                            const pendingCount = dayOrders.filter((o) => o.status === 'pending').length
-                            const isSelected = selectedDate === dayKey
-                            const hasOrders = dayOrders.length > 0
-
-                            return (
-                                <button
-                                    key={dayKey}
-                                    onClick={() => setSelectedDate(isSelected ? null : dayKey)}
-                                    className={`relative flex items-center justify-center rounded-full text-[10px] transition-all aspect-square ${
-                                        isSelected
-                                            ? 'text-[#0C0C0C] font-bold'
-                                            : 'text-[#444]'
-                                    }`}
-                                >
-                                    <span className={`w-6 h-6 flex items-center justify-center rounded-full transition-all ${
-                                        isSelected
-                                            ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]'
-                                            : hasOrders
-                                                ? pendingCount > 0
-                                                    ? 'bg-yellow-400/20 text-yellow-400 font-bold hover:bg-yellow-400/30'
-                                                    : 'bg-green-400/20 text-green-400 font-bold hover:bg-green-400/30'
-                                                : 'hover:bg-[#161616]'
-                                    }`}>
-                                        {day}
-                                    </span>
-                                </button>
-                            )
-                        })}
-                    </div>
-
-                    {/* Legend */}
-                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#1a1a1a]">
-                        <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#444]">Pending Orders</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#444]">Orders Completed</span>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Filters & Orders */}
             <div className="flex items-center justify-between mb-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
                     Showing {filteredOrders.length} {statusFilter !== 'all' ? statusFilter : ''} order{filteredOrders.length !== 1 ? 's' : ''}
-                    {` · ${new Date((selectedDate || new Date().toISOString().split('T')[0]) + 'T00:00:00').toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}`}
                 </p>
                 <div className="relative group">
                     <select
@@ -325,11 +277,12 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                             <p className="text-md font-bold text-white">Order #{order.id}</p>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
                                                 ? 'bg-green-900/20 text-green-400 border border-green-500/30'
+                                                : order.status === 'cancelled'
+                                                ? 'bg-red-900/20 text-red-400 border border-red-500/30'
                                                 : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
                                                 }`}>
-                                                {order.status}
+                                                Status: {order.status}
                                             </span>
-                                            {/* ADDED: Payment Status Badge */}
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                                 order.payment_status === 'paid'
                                                     ? 'bg-green-900/20 text-green-400 border border-green-500/30'
@@ -337,7 +290,7 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                                     ? 'bg-red-900/20 text-red-400 border border-red-500/30'
                                                     : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
                                                 }`}>
-                                                {order.payment_status ?? 'unpaid'}
+                                                Payment: {order.payment_status ?? 'unpaid'}
                                             </span>
                                         </div>
                                         <p className="text-sm text-[#aaa] mt-6">{order.guest_name} · {order.guest_email}</p>
@@ -383,19 +336,24 @@ function OrdersTab({ orders, orderItems, cards, router }) {
                                         </div>
                                     )}
                                 </div>
-                                {order.status !== 'shipped' && order.payment_status === 'paid' && (
-                                    <button
-                                        onClick={() => markAsShipped(order.id)}
-                                        disabled={updatingId === order.id}
-                                        className="absolute bottom-4 right-4 text-[12px] uppercase font-bold tracking-widest bg-white text-[#0C0C0C] px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-30"
-                                    >
-                                        {updatingId === order.id ? 'Updating...' : 'Ship now'}
-                                    </button>
-                                )}
-                                {order.status !== 'shipped' && order.payment_status !== 'paid' && (
-                                    <span className="absolute bottom-4 right-4 text-[10px] uppercase font-bold tracking-widest text-[#333] border border-[#1e1e1e] px-3 py-1.5 rounded-lg">
-                                        Awaiting payment
-                                    </span>
+                                {order.status !== 'shipped' && (
+                                    order.status === 'cancelled' || order.payment_status === 'cancelled' ? (
+                                        <span className="absolute bottom-4 right-4 text-[10px] uppercase font-bold tracking-widest text-[#444] border border-[#1e1e1e] px-3 py-1.5 rounded-lg">
+                                            Order Cancelled
+                                        </span>
+                                    ) : order.payment_status === 'paid' ? (
+                                        <button
+                                            onClick={() => markAsShipped(order.id)}
+                                            disabled={updatingId === order.id}
+                                            className="absolute bottom-4 right-4 text-[12px] uppercase font-bold tracking-widest bg-white text-[#0C0C0C] px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-30"
+                                        >
+                                            {updatingId === order.id ? 'Updating...' : 'Ship now'}
+                                        </button>
+                                    ) : (
+                                        <span className="absolute bottom-4 right-4 text-[10px] uppercase font-bold tracking-widest text-[#333] border border-[#1e1e1e] px-3 py-1.5 rounded-lg">
+                                            Awaiting payment
+                                        </span>
+                                    )
                                 )}
                             </div>
                         )
@@ -642,6 +600,241 @@ function AddCardTab({ router }) {
                     {isSubmitting ? 'Adding...' : 'Add pack'}
                 </button>
             </form>
+        </div>
+    )
+}
+
+function AnalyticsTab({ orders, orderItems, cards }) {
+    // 1. Process Revenue Over Time (Line Chart)
+    const revenueData = useMemo(() => {
+        // Only count paid or shipped orders for revenue
+        const validOrders = orders.filter(o => o.status === 'shipped' || o.payment_status === 'paid')
+
+        const groupedByDate = validOrders.reduce((acc, order) => {
+            const date = new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            if (!acc[date]) acc[date] = 0
+            acc[date] += Number(order.total || 0)
+            return acc
+        }, {})
+
+        return Object.entries(groupedByDate)
+            .map(([date, revenue]) => ({ date, revenue }))
+            .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort chronologically
+    }, [orders])
+
+    // 2. Process Best Selling Packs (Pie Chart)
+    const pieData = useMemo(() => {
+        // Count quantities of each card sold
+        const cardCounts = orderItems.reduce((acc, item) => {
+            if (!acc[item.card_id]) acc[item.card_id] = 0
+            acc[item.card_id] += item.quantity
+            return acc
+        }, {})
+
+        // Match with card names and sort top 5
+        const sortedPacks = Object.entries(cardCounts)
+            .map(([cardId, count]) => {
+                const cardInfo = cards.find(c => String(c.id) === String(cardId))
+                return {
+                    name: cardInfo ? cardInfo.name : 'Unknown',
+                    value: count
+                }
+            })
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 5) // Only show top 5 so the pie chart stays clean
+
+        return sortedPacks
+    }, [orderItems, cards])
+
+    const PIE_COLORS = ['#C9A844', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899']
+
+    // 3. Process Customer Metrics
+    const customerMetrics = useMemo(() => {
+        const uniqueEmails = new Set(orders.map(o => o.guest_email))
+        const totalRevenue = orders.filter(o => o.status === 'shipped' || o.payment_status === 'paid').reduce((sum, o) => sum + Number(o.total || 0), 0)
+        const avgSpend = uniqueEmails.size > 0 ? totalRevenue / uniqueEmails.size : 0
+
+        return {
+            totalCustomers: uniqueEmails.size,
+            avgSpend: avgSpend
+        }
+    }, [orders])
+
+    return (
+        <div className="space-y-6">
+            {/* KPI Row */}
+            <div className="grid grid-cols-2 gap-4">
+                <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Unique Customers</p>
+                    <p className="text-3xl font-display text-white mt-2">{customerMetrics.totalCustomers}</p>
+                </div>
+                <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Avg Spend Per User (LTV)</p>
+                    <p className="text-3xl font-display text-[#10b981] mt-2">{formatCurrency(customerMetrics.avgSpend)}</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Line Chart: Revenue */}
+                <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-6">Revenue Over Time</p>
+                    <div className="h-[300px] w-full">
+                        {revenueData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={revenueData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                                    <XAxis dataKey="date" stroke="#666" tick={{ fill: '#666', fontSize: 10 }} tickLine={false} axisLine={false} />
+                                    <YAxis
+                                        stroke="#666"
+                                        tick={{ fill: '#666', fontSize: 10 }}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickFormatter={(value) => `₱${value.toLocaleString()}`}
+                                    />
+                                    <RechartsTooltip
+                                        contentStyle={{ backgroundColor: '#111', borderColor: '#2a2a2a', borderRadius: '8px' }}
+                                        itemStyle={{ color: '#10b981', fontWeight: 'bold' }}
+                                        formatter={(value) => [`₱${value.toLocaleString()}`, 'Revenue']}
+                                    />
+                                    <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#111', stroke: '#10b981', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-xs tracking-widest uppercase text-[#444]">No revenue data yet</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Pie Chart: Top Packs */}
+                <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-6">Top Selling Packs</p>
+                    <div className="h-[300px] w-full flex flex-col items-center justify-center">
+                        {pieData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={pieData}
+                                        cx="50%"
+                                        cy="45%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                        stroke="none"
+                                    >
+                                        {pieData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip
+                                        contentStyle={{ backgroundColor: '#111', borderColor: '#2a2a2a', borderRadius: '8px', fontSize: '12px' }}
+                                        itemStyle={{ color: '#fff' }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-xs tracking-widest uppercase text-[#444]">No sales data yet</div>
+                        )}
+                        {/* Custom Legend */}
+                        {pieData.length > 0 && (
+                            <div className="flex flex-wrap items-center justify-center gap-3 mt-4 w-full">
+                                {pieData.map((entry, index) => (
+                                    <div key={index} className="flex items-center gap-1.5">
+                                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
+                                        <span className="text-[10px] text-[#888] uppercase tracking-wider truncate max-w-[100px]">{entry.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function Calendar({ currentMonth, setCurrentMonth, selectedDate, setSelectedDate, ordersByDay }) {
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+    const prevMonth = () => setCurrentMonth(new Date(year, month - 1, 1))
+    const nextMonth = () => setCurrentMonth(new Date(year, month + 1, 1))
+
+    const calendarCells = []
+    for (let i = 0; i < firstDay; i++) calendarCells.push(null)
+    for (let d = 1; d <= daysInMonth; d++) calendarCells.push(d)
+
+    return (
+        <div className="bg-[#111]">
+            <div className="flex items-center justify-between mb-2 px-1">
+                <button onClick={prevMonth} className="text-[#555] hover:text-white transition-colors p-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#aaa]">{monthName}</h3>
+                <button onClick={nextMonth} className="text-[#555] hover:text-white transition-colors p-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <div className="grid grid-cols-7 gap-1 mb-1">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                    <div key={i} className="text-center text-[8px] font-bold uppercase tracking-widest text-[#333] py-1">
+                        {day}
+                    </div>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-7 gap-0">
+                {calendarCells.map((day, i) => {
+                    if (day === null) return <div key={`empty-${i}`} />
+
+                    const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                    const dayOrders = ordersByDay[dayKey] ?? []
+                    const pendingCount = dayOrders.filter((o) => o.status === 'pending').length
+                    const isSelected = selectedDate === dayKey
+                    const hasOrders = dayOrders.length > 0
+
+                    return (
+                        <button
+                            key={dayKey}
+                            onClick={() => setSelectedDate(isSelected ? null : dayKey)}
+                            className={`relative flex items-center justify-center rounded-full text-[10px] transition-all aspect-square ${
+                                isSelected ? 'text-[#0C0C0C] font-bold' : 'text-[#444]'
+                            }`}
+                        >
+                            <span className={`w-5 h-5 flex items-center justify-center rounded-full transition-all ${
+                                isSelected
+                                    ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]'
+                                    : hasOrders
+                                        ? pendingCount > 0
+                                            ? 'bg-yellow-400/20 text-yellow-400 font-bold hover:bg-yellow-400/30'
+                                            : 'bg-green-400/20 text-green-400 font-bold hover:bg-green-400/30'
+                                        : 'hover:bg-[#161616]'
+                            }`}>
+                                {day}
+                            </span>
+                        </button>
+                    )
+                })}
+            </div>
+
+            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#1a1a1a]">
+                <div className="flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-yellow-400" />
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-[#444]">Pending</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-green-400" />
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-[#444]">Done</span>
+                </div>
+            </div>
         </div>
     )
 }
