@@ -606,11 +606,19 @@ function CardsTab({ cards, router }) {
                             <div className="flex-1">
                                 <p className="text-sm font-bold text-white">{card.name}</p>
                                 <p className="text-xs text-[#888]">{card.set_name} · {card.pack_type}</p>
-                                <div className="flex gap-4 mt-2">
-                                    <p className="text-xs font-bold text-white">{formatCurrency(card.price)}</p>
-                                    <p className={`text-xs font-bold ${card.stock_quantity <= 3 ? 'text-orange-500' : 'text-[#666]'}`}>
-                                        Stock: {card.stock_quantity}
-                                    </p>
+                                <div className="flex gap-2 mt-2">
+                                    <div className="bg-[#1a1a1a] border border-[#2a2a2a] px-2 py-0.5 rounded-full">
+                                        <p className="text-[10px] font-bold text-[#F5F5F5]">{formatCurrency(card.price)}</p>
+                                    </div>
+                                    <div className={`px-2 py-0.5 rounded-full border ${
+                                        card.stock_quantity <= 3
+                                            ? 'bg-orange-500/10 border-orange-500/30 text-orange-500'
+                                            : 'bg-[#1a1a1a] border border-[#2a2a2a] text-[#666]'
+                                        }`}>
+                                        <p className="text-[10px] font-bold uppercase tracking-wider">
+                                            Stock: {card.stock_quantity}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                             <button
