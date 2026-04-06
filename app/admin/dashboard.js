@@ -294,6 +294,24 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     )
 }
 
+// Helper components for the dashboard
+function Badge({ label, status }) {
+    const colorMap = {
+        'shipped': 'bg-green-900/20 text-green-400 border border-green-500/30',
+        'paid': 'bg-green-900/20 text-green-400 border border-green-500/30',
+        'cancelled': 'bg-red-900/20 text-red-400 border border-red-500/30',
+        'pending': 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30',
+    }
+
+    const colorClass = colorMap[status] || 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
+
+    return (
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${colorClass}`}>
+            {label}
+        </span>
+    )
+}
+
 function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelectedDate, ordersByDay }) {
     const [updatingId, setUpdatingId] = useState(null)
     const [statusFilter, setStatusFilter] = useState('all')
@@ -375,27 +393,11 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
                                         <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <p className="text-md font-bold text-white">Order #{order.id}</p>
                                             {order.status === 'cancelled' && order.payment_status === 'cancelled' ? (
-                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-red-900/20 text-red-400 border border-red-500/30">
-                                                    Cancelled
-                                                </span>
+                                                <Badge label="Cancelled" status="cancelled" />
                                             ) : (
                                                 <>
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
-                                                        ? 'bg-green-900/20 text-green-400 border border-green-500/30'
-                                                        : order.status === 'cancelled'
-                                                            ? 'bg-red-900/20 text-red-400 border border-red-500/30'
-                                                            : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
-                                                        }`}>
-                                                        Status: {order.status}
-                                                    </span>
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.payment_status === 'paid'
-                                                        ? 'bg-green-900/20 text-green-400 border border-green-500/30'
-                                                        : order.payment_status === 'cancelled'
-                                                            ? 'bg-red-900/20 text-red-400 border border-red-500/30'
-                                                            : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
-                                                        }`}>
-                                                        Payment: {order.payment_status ?? 'unpaid'}
-                                                    </span>
+                                                    <Badge label={`Status: ${order.status}`} status={order.status} />
+                                                    <Badge label={`Payment: ${order.payment_status ?? 'unpaid'}`} status={order.payment_status} />
                                                 </>
                                             )}
                                         </div>
