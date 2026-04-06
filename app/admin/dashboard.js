@@ -77,77 +77,93 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     }
 
     return (
-        <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] relative">
-            <nav className="bg-[#0C0C0C] border-b border-[#1a1a1a] px-6 py-4">
+        <main className="min-h-screen bg-[#0C0C0C] text-[#e0d8c8] relative pb-24 md:pb-0">
+            <nav className="bg-[#0C0C0C] border-b border-[#1a1a1a] px-4 md:px-6 py-4">
                 <div className="max-w-9xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-lg font-bold text-white tracking-tight uppercase">PokeVault Admin</h1>
-                        <span className="bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-[#2a2a2a]">
+                        <h1 className="text-md md:text-lg font-bold text-white tracking-tight uppercase">PokeVault Admin</h1>
+                        <span className="hidden md:inline-block bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-[#2a2a2a]">
                             Dashboard
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <span className="text-sm text-[#888] font-medium">{user.email}</span>
+                        <span className="hidden md:inline-block text-sm text-[#888] font-medium">{user.email}</span>
                         <button
                             onClick={handleSignOut}
                             disabled={isSigningOut}
-                            className="text-sm text-white hover:text-red-700"
+                            className="text-xs md:text-sm text-white hover:text-red-700 font-bold tracking-widest uppercase md:normal-case md:font-normal md:tracking-normal"
                         >
                             Sign out
                         </button>
                     </div>
                 </div>
             </nav>
-            
+
             {/* Calendar Trigger (Top Right of Screen) */}
-            <div className="absolute top-[85px] right-6 z-20 flex flex-col items-end">
-                <button 
+            <div className="absolute top-[75px] right-4 md:top-[85px] md:right-6 z-40 flex flex-col items-end">
+                <button
                     onClick={() => setIsCalendarCollapsed(!isCalendarCollapsed)}
-                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[#111] border border-[#1a1a1a] px-4 py-2 rounded-lg text-[#aaa] hover:text-white hover:border-[#2e2e2e] transition-all"
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[#111] border border-[#1a1a1a] px-3 py-2 md:px-4 md:py-2 rounded-lg text-[#aaa] hover:text-white hover:border-[#2e2e2e] transition-all"
                 >
                     <svg className={`w-3 h-3 transition-transform ${isCalendarCollapsed ? '-rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
                     </svg>
-                    <span>{isCalendarCollapsed ? 'Show Calendar' : 'Hide Calendar'}</span>
+                    <span className="hidden md:inline">{isCalendarCollapsed ? 'Show Calendar' : 'Hide Calendar'}</span>
+                    <span className="md:hidden">Calendar</span>
                 </button>
 
                 {!isCalendarCollapsed && (
-                    <div className="mt-2 w-72 bg-[#111] border border-[#1a1a1a] rounded-xl p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-                        <Calendar 
-                            currentMonth={currentMonth}
-                            setCurrentMonth={setCurrentMonth}
-                            selectedDate={selectedDate}
-                            setSelectedDate={setSelectedDate}
-                            ordersByDay={ordersByDay}
+                    <>
+                        {/* Mobile Backdrop */}
+                        <div
+                            className="fixed inset-0 bg-black/80 z-40 md:hidden"
+                            onClick={() => setIsCalendarCollapsed(true)}
                         />
-                    </div>
+                        {/* Calendar Modal/Dropdown */}
+                        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm z-50 md:absolute md:top-full md:left-auto md:right-0 md:translate-x-0 md:translate-y-0 md:mt-2 md:w-72 bg-[#111] border border-[#1a1a1a] rounded-xl p-3 shadow-2xl animate-in fade-in duration-200">
+                            <Calendar
+                                currentMonth={currentMonth}
+                                setCurrentMonth={setCurrentMonth}
+                                selectedDate={selectedDate}
+                                setSelectedDate={setSelectedDate}
+                                ordersByDay={ordersByDay}
+                            />
+                            <button
+                                onClick={() => setIsCalendarCollapsed(true)}
+                                className="w-full mt-4 bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest py-2.5 rounded-lg md:hidden hover:text-white border border-[#2a2a2a]"
+                            >
+                                Close Calendar
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
 
-            <div className="max-w-6xl mx-auto px-6 py-24 relative">
+            <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-24 relative">
 
                 {/* Date Header */}
-                <div className="mb-6">
+                <div className="mb-6 mt-4 md:mt-0">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-1">Showing Orders for</p>
-                    <h2 className="text-xl font-bold text-white uppercase tracking-tight">
+                    <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-tight">
                         {selectedDate ? formatDate(selectedDate + 'T00:00:00') : 'All-time Overview'}
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                {/* KPI Stats Grid (Responsive) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total packs</p>
                         <p className="text-2xl font-bold mt-1 text-white">{cards.length}</p>
                     </div>
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
-                            {selectedDate ? 'Orders for today' : 'Total orders'}
+                            {selectedDate ? 'Total orders' : 'Total orders'}
                         </p>
                         <p className="text-2xl font-bold mt-1 text-white">{displayOrders.length}</p>
                     </div>
                     <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
-                            {selectedDate ? 'Revenue for today' : 'Revenue'}
+                            {selectedDate ? 'Revenue' : 'Revenue'}
                         </p>
                         <p className="text-2xl font-bold mt-1 text-[#3e9c35]">
                             + {formatCurrency(displayRevenue)}
@@ -155,7 +171,8 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                     </div>
                 </div>
 
-                <div className="flex gap-2 mb-6">
+                {/* Desktop Tabs */}
+                <div className="hidden md:flex gap-2 mb-6">
                     {['analytics', 'orders', 'packs', 'add pack'].map((tab) => (
                         <button
                             key={tab}
@@ -170,15 +187,29 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                     ))}
                 </div>
 
+                {/* Mobile Sticky Bottom Nav (Instagram Style) */}
+                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0C0C0C]/95 backdrop-blur-md border-t border-[#1a1a1a] flex items-center justify-around pb-safe">
+                    {['analytics', 'orders', 'packs', 'add pack'].map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`flex-1 py-5 text-[9px] font-bold uppercase tracking-widest transition-all text-center ${activeTab === tab ? 'text-[#C9A844] border-t-2 border-[#C9A844] -mt-[2px]' : 'text-[#666] border-t-2 border-transparent -mt-[2px]'}`}
+                        >
+                            {tab === 'add pack' ? 'Add' : tab}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Tab Content */}
                 {activeTab === 'analytics' && (
                     <AnalyticsTab orders={orders} orderItems={orderItems} cards={cards} />
                 )}
                 {activeTab === 'orders' && (
-                    <OrdersTab 
-                        orders={orders} 
-                        orderItems={orderItems} 
-                        cards={cards} 
-                        router={router} 
+                    <OrdersTab
+                        orders={orders}
+                        orderItems={orderItems}
+                        cards={cards}
+                        router={router}
                         selectedDate={selectedDate}
                         setSelectedDate={setSelectedDate}
                         ordersByDay={ordersByDay}
@@ -237,15 +268,15 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
     return (
         <div className="space-y-4">
             {/* Filters & Orders */}
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
                     Showing {filteredOrders.length} {statusFilter !== 'all' ? statusFilter : ''} order{filteredOrders.length !== 1 ? 's' : ''}
                 </p>
-                <div className="relative group">
+                <div className="relative group w-full md:w-auto">
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="appearance-none bg-[#111] border border-[#1a1a1a] text-[10px] font-bold uppercase tracking-widest text-[#aaa] px-4 py-2 rounded-lg outline-none focus:border-[#C9A844] transition-all cursor-pointer pr-10"
+                        className="w-full md:w-auto appearance-none bg-[#111] border border-[#1a1a1a] text-[10px] font-bold uppercase tracking-widest text-[#aaa] px-4 py-3 md:py-2 rounded-lg outline-none focus:border-[#C9A844] transition-all cursor-pointer pr-10"
                     >
                         <option value="all">All Orders</option>
                         <option value="pending">Pending</option>
@@ -271,39 +302,38 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
 
                         return (
                             <div key={order.id} className="relative bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#222]">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
+                                <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+                                    <div className="flex-1 w-full">
+                                        <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <p className="text-md font-bold text-white">Order #{order.id}</p>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
                                                 ? 'bg-green-900/20 text-green-400 border border-green-500/30'
                                                 : order.status === 'cancelled'
-                                                ? 'bg-red-900/20 text-red-400 border border-red-500/30'
-                                                : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
+                                                    ? 'bg-red-900/20 text-red-400 border border-red-500/30'
+                                                    : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
                                                 }`}>
                                                 Status: {order.status}
                                             </span>
-                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                                                order.payment_status === 'paid'
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.payment_status === 'paid'
                                                     ? 'bg-green-900/20 text-green-400 border border-green-500/30'
                                                     : order.payment_status === 'cancelled'
-                                                    ? 'bg-red-900/20 text-red-400 border border-red-500/30'
-                                                    : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
+                                                        ? 'bg-red-900/20 text-red-400 border border-red-500/30'
+                                                        : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
                                                 }`}>
                                                 Payment: {order.payment_status ?? 'unpaid'}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-[#aaa] mt-6">{order.guest_name} · {order.guest_email}</p>
+                                        <p className="text-sm text-[#aaa] mt-4 md:mt-6">{order.guest_name} · {order.guest_email}</p>
                                         {order.guest_phone && (
                                             <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">Phone: {order.guest_phone}</p>
                                         )}
                                         <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">Address: {order.shipping_address}</p>
                                         <p className="text-[10px] text-[#444] mt-1 tracking-widest uppercase font-bold">{formatDate(order.created_at)}</p>
 
-                                        <div className="mt-1">
+                                        <div className="mt-2 md:mt-1">
                                             <button
                                                 onClick={() => toggleOrder(order.id)}
-                                                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#454545] hover:text-[#9C9C9C] transition-colors"
+                                                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#454545] hover:text-[#9C9C9C] transition-colors py-2 md:py-0"
                                             >
                                                 <span>{isExpanded ? 'Hide Details' : `View Cards (${items.length} ${items.length === 1 ? 'item' : 'items'})`}</span>
                                                 <svg className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,7 +347,7 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
                                                         const card = cards.find((c) => String(c.id) === String(item.card_id))
                                                         return (
                                                             <React.Fragment key={item.id}>
-                                                                <span className="text-xs font-medium text-[#ccc] whitespace-nowrap">
+                                                                <span className="text-xs font-medium text-[#ccc] whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] md:max-w-none">
                                                                     {card?.name ?? 'Unknown pack'} x{item.quantity}
                                                                 </span>
                                                                 <span className="text-xs font-bold text-[#aaa]">
@@ -331,7 +361,7 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
                                         </div>
                                     </div>
                                     {order.status === 'shipped' && (
-                                        <div className="text-right whitespace-nowrap">
+                                        <div className="text-left md:text-right mt-2 md:mt-0 pb-10 md:pb-0">
                                             <p className="text-sm font-bold text-[#3e9c35]">+ {formatCurrency(order.total)}</p>
                                         </div>
                                     )}
@@ -437,7 +467,7 @@ function CardsTab({ cards, router }) {
             {cards.map((card) => (
                 <div key={card.id} className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4">
                     {editingId === card.id ? (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {[
                                 { label: 'Pack Name', key: 'name', type: 'text' },
                                 { label: 'Set', key: 'set_name', type: 'text' },
@@ -468,32 +498,34 @@ function CardsTab({ cards, router }) {
                                     )}
                                 </div>
                             ))}
-                            <div className="col-span-2 flex items-center gap-2 mt-2">
-                                <button
-                                    onClick={() => saveEdit(card.id)}
-                                    disabled={isSaving}
-                                    className="bg-[#C9A844] text-[#0C0C0C] text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-yellow-500 disabled:opacity-30"
-                                >
-                                    {isSaving ? 'Saving...' : 'Save'}
-                                </button>
-                                <button
-                                    onClick={() => setEditingId(null)}
-                                    className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-[#222] hover:text-white"
-                                >
-                                    Cancel
-                                </button>
+                            <div className="col-span-1 md:col-span-2 flex flex-col md:flex-row items-center gap-2 mt-2 w-full">
+                                <div className="flex gap-2 w-full md:w-auto">
+                                    <button
+                                        onClick={() => saveEdit(card.id)}
+                                        disabled={isSaving}
+                                        className="flex-1 md:flex-none bg-[#C9A844] text-[#0C0C0C] text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-yellow-500 disabled:opacity-30"
+                                    >
+                                        {isSaving ? 'Saving...' : 'Save'}
+                                    </button>
+                                    <button
+                                        onClick={() => setEditingId(null)}
+                                        className="flex-1 md:flex-none bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-[#222] hover:text-white"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
                                 <button
                                     onClick={() => setConfirmDeleteId(card.id)}
                                     disabled={deletingId === card.id}
-                                    className="ml-auto bg-transparent border border-red-900/40 text-red-500 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-lg hover:bg-red-900/20 hover:border-red-500 transition-all disabled:opacity-30"
+                                    className="w-full md:w-auto md:ml-auto bg-transparent border border-red-900/40 text-red-500 text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-red-900/20 hover:border-red-500 transition-all disabled:opacity-30 mt-2 md:mt-0"
                                 >
                                     {deletingId === card.id ? 'Deleting...' : 'Delete'}
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center justify-between gap-4">
-                            <div>
+                        <div className="flex flex-row items-center justify-between gap-4">
+                            <div className="flex-1">
                                 <p className="text-sm font-bold text-white">{card.name}</p>
                                 <p className="text-xs text-[#888]">{card.set_name} · {card.pack_type}</p>
                                 <div className="flex gap-4 mt-2">
@@ -505,7 +537,7 @@ function CardsTab({ cards, router }) {
                             </div>
                             <button
                                 onClick={() => startEdit(card)}
-                                className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-[#222] hover:text-white transition-all"
+                                className="bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-lg hover:bg-[#222] hover:text-white transition-all whitespace-nowrap"
                             >
                                 Edit
                             </button>
@@ -542,7 +574,7 @@ function AddCardTab({ router }) {
         })
 
         setForm({
-            name: '', set_name: '', pack_type: '', language: '',
+            name: '', set_name: '', pack_type: '', language: 'EN',
             price: '', stock_quantity: '', image_url: '',
         })
         setSuccess(true)
@@ -551,7 +583,7 @@ function AddCardTab({ router }) {
     }
 
     return (
-        <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6 max-w-lg">
+        <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 md:p-6 w-full max-w-lg mx-auto md:mx-0">
             <h2 className="text-base font-bold text-white uppercase tracking-widest mb-6 border-b border-[#222] pb-4">Add new pack</h2>
             {success && (
                 <p className="text-sm text-green-400 font-bold mb-6 tracking-wide">✓ Pack added successfully!</p>
@@ -662,8 +694,8 @@ function AnalyticsTab({ orders, orderItems, cards }) {
 
     return (
         <div className="space-y-6">
-            {/* KPI Row */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* KPI Row - Responsive Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Unique Customers</p>
                     <p className="text-3xl font-display text-white mt-2">{customerMetrics.totalCustomers}</p>
@@ -674,11 +706,12 @@ function AnalyticsTab({ orders, orderItems, cards }) {
                 </div>
             </div>
 
+            {/* Charts - Responsive Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Line Chart: Revenue */}
                 <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-6">Revenue Over Time</p>
-                    <div className="h-[300px] w-full">
+                    <div className="h-[250px] md:h-[300px] w-full">
                         {revenueData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={revenueData}>
@@ -690,6 +723,7 @@ function AnalyticsTab({ orders, orderItems, cards }) {
                                         tickLine={false}
                                         axisLine={false}
                                         tickFormatter={(value) => `₱${value.toLocaleString()}`}
+                                        width={65}
                                     />
                                     <RechartsTooltip
                                         contentStyle={{ backgroundColor: '#111', borderColor: '#2a2a2a', borderRadius: '8px' }}
@@ -708,7 +742,7 @@ function AnalyticsTab({ orders, orderItems, cards }) {
                 {/* Pie Chart: Top Packs */}
                 <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-6">Top Selling Packs</p>
-                    <div className="h-[300px] w-full flex flex-col items-center justify-center">
+                    <div className="h-[250px] md:h-[300px] w-full flex flex-col items-center justify-center">
                         {pieData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -716,8 +750,8 @@ function AnalyticsTab({ orders, orderItems, cards }) {
                                         data={pieData}
                                         cx="50%"
                                         cy="45%"
-                                        innerRadius={60}
-                                        outerRadius={90}
+                                        innerRadius={50}
+                                        outerRadius={80}
                                         paddingAngle={5}
                                         dataKey="value"
                                         stroke="none"
@@ -805,19 +839,17 @@ function Calendar({ currentMonth, setCurrentMonth, selectedDate, setSelectedDate
                         <button
                             key={dayKey}
                             onClick={() => setSelectedDate(isSelected ? null : dayKey)}
-                            className={`relative flex items-center justify-center rounded-full text-[10px] transition-all aspect-square ${
-                                isSelected ? 'text-[#0C0C0C] font-bold' : 'text-[#444]'
-                            }`}
+                            className={`relative flex items-center justify-center rounded-full text-[10px] transition-all aspect-square ${isSelected ? 'text-[#0C0C0C] font-bold' : 'text-[#444]'
+                                }`}
                         >
-                            <span className={`w-5 h-5 flex items-center justify-center rounded-full transition-all ${
-                                isSelected
+                            <span className={`w-6 md:w-5 h-6 md:h-5 flex items-center justify-center rounded-full transition-all ${isSelected
                                     ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)]'
                                     : hasOrders
                                         ? pendingCount > 0
                                             ? 'bg-yellow-400/20 text-yellow-400 font-bold hover:bg-yellow-400/30'
                                             : 'bg-green-400/20 text-green-400 font-bold hover:bg-green-400/30'
                                         : 'hover:bg-[#161616]'
-                            }`}>
+                                }`}>
                                 {day}
                             </span>
                         </button>
@@ -825,13 +857,13 @@ function Calendar({ currentMonth, setCurrentMonth, selectedDate, setSelectedDate
                 })}
             </div>
 
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#1a1a1a]">
+            <div className="flex items-center justify-center md:justify-start gap-3 mt-3 pt-3 border-t border-[#1a1a1a]">
                 <div className="flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-yellow-400" />
+                    <span className="w-1.5 h-1.5 md:w-1 md:h-1 rounded-full bg-yellow-400" />
                     <span className="text-[8px] font-bold uppercase tracking-widest text-[#444]">Pending</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-green-400" />
+                    <span className="w-1.5 h-1.5 md:w-1 md:h-1 rounded-full bg-green-400" />
                     <span className="text-[8px] font-bold uppercase tracking-widest text-[#444]">Done</span>
                 </div>
             </div>
