@@ -44,6 +44,7 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
     const [selectedDate, setSelectedDate] = useState(null)
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(true)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
     // Build order count map by day key "YYYY-MM-DD"
     const ordersByDay = useMemo(() => {
@@ -87,89 +88,142 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
+                        {/* Desktop: Email and Sign Out */}
                         <span className="hidden md:inline-block text-sm text-[#888] font-medium">{user.email}</span>
                         <button
                             onClick={handleSignOut}
                             disabled={isSigningOut}
-                            className="text-xs md:text-sm text-white hover:text-red-700 font-bold tracking-widest uppercase md:normal-case md:font-normal md:tracking-normal"
+                            className="hidden md:inline-block text-sm text-white hover:text-red-700 transition-colors"
                         >
                             Sign out
+                        </button>
+
+                        {/* Mobile: Avatar Trigger */}
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="md:hidden w-8 h-8 rounded-full bg-[#C9A844] text-[#0C0C0C] flex items-center justify-center font-bold text-xs border border-white/10"
+                        >
+                            {user.email[0].toUpperCase()}
                         </button>
                     </div>
                 </div>
             </nav>
 
-            {/* Calendar Trigger (Top Right of Screen) */}
-            <div className="absolute top-[75px] right-4 md:top-[85px] md:right-6 z-40 flex flex-col items-end">
-                <button
-                    onClick={() => setIsCalendarCollapsed(!isCalendarCollapsed)}
-                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[#111] border border-[#1a1a1a] px-3 py-2 md:px-4 md:py-2 rounded-lg text-[#aaa] hover:text-white hover:border-[#2e2e2e] transition-all"
-                >
-                    <svg className={`w-3 h-3 transition-transform ${isCalendarCollapsed ? '-rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
-                    </svg>
-                    <span className="hidden md:inline">{isCalendarCollapsed ? 'Show Calendar' : 'Hide Calendar'}</span>
-                    <span className="md:hidden">Calendar</span>
-                </button>
+            {/* Mobile Sidebar */}
+            {isSidebarOpen && (
+                <>
+                    <div 
+                        className="fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm md:hidden"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                    <div className="fixed top-0 right-0 bottom-0 w-64 bg-[#111] border-l border-[#1a1a1a] z-[70] md:hidden animate-in slide-in-from-right duration-300">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-[#666]">Admin Menu</h3>
+                                <button onClick={() => setIsSidebarOpen(false)} className="text-[#888] hover:text-white">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div className="mb-8">
+                                <p className="text-[10px] uppercase font-bold tracking-widest text-[#444] mb-1">Welcome Admin</p>
+                                <p className="text-sm font-medium text-white truncate">{user.email}</p>
+                            </div>
 
-                {!isCalendarCollapsed && (
-                    <>
-                        {/* Mobile Backdrop */}
-                        <div
-                            className="fixed inset-0 bg-black/80 z-40 md:hidden"
-                            onClick={() => setIsCalendarCollapsed(true)}
-                        />
-                        {/* Calendar Modal/Dropdown */}
-                        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm z-50 md:absolute md:top-full md:left-auto md:right-0 md:translate-x-0 md:translate-y-0 md:mt-2 md:w-72 bg-[#111] border border-[#1a1a1a] rounded-xl p-3 shadow-2xl animate-in fade-in duration-200">
-                            <Calendar
-                                currentMonth={currentMonth}
-                                setCurrentMonth={setCurrentMonth}
-                                selectedDate={selectedDate}
-                                setSelectedDate={setSelectedDate}
-                                ordersByDay={ordersByDay}
-                            />
                             <button
-                                onClick={() => setIsCalendarCollapsed(true)}
-                                className="w-full mt-4 bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest py-2.5 rounded-lg md:hidden hover:text-white border border-[#2a2a2a]"
+                                onClick={handleSignOut}
+                                disabled={isSigningOut}
+                                className="w-full bg-red-900/40 border border-red-800/50 text-red-200 text-xs font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-red-900/60 hover:text-white transition-all disabled:opacity-50"
                             >
-                                Close Calendar
+                                {isSigningOut ? 'Signing out...' : 'Sign out'}
                             </button>
                         </div>
-                    </>
-                )}
-            </div>
+                    </div>
+                </>
+            )}
+
+            {/* Calendar Trigger (Top Right of Screen) */}
+            {(activeTab === 'analytics' || activeTab === 'orders') && (
+                <div className="absolute top-[75px] right-4 md:top-[85px] md:right-6 z-40 flex flex-col items-end">
+                    <button
+                        onClick={() => setIsCalendarCollapsed(!isCalendarCollapsed)}
+                        className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[#111] border border-[#1a1a1a] px-3 py-2 md:px-4 md:py-2 rounded-lg text-[#aaa] hover:text-white hover:border-[#2e2e2e] transition-all"
+                    >
+                        <svg className={`w-3 h-3 transition-transform ${isCalendarCollapsed ? '-rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                        </svg>
+                        <span className="hidden md:inline">{isCalendarCollapsed ? 'Show Calendar' : 'Hide Calendar'}</span>
+                        <span className="md:hidden">Calendar</span>
+                    </button>
+
+                    {!isCalendarCollapsed && (
+                        <>
+                            {/* Mobile Backdrop */}
+                            <div
+                                className="fixed inset-0 bg-black/80 z-40 md:hidden"
+                                onClick={() => setIsCalendarCollapsed(true)}
+                            />
+                            {/* Calendar Modal/Dropdown */}
+                            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm z-50 md:absolute md:top-full md:left-auto md:right-0 md:translate-x-0 md:translate-y-0 md:mt-2 md:w-72 bg-[#111] border border-[#1a1a1a] rounded-xl p-3 shadow-2xl animate-in fade-in duration-200">
+                                <Calendar
+                                    currentMonth={currentMonth}
+                                    setCurrentMonth={setCurrentMonth}
+                                    selectedDate={selectedDate}
+                                    setSelectedDate={setSelectedDate}
+                                    ordersByDay={ordersByDay}
+                                />
+                                <button
+                                    onClick={() => setIsCalendarCollapsed(true)}
+                                    className="w-full mt-4 bg-[#1a1a1a] text-[#aaa] text-[10px] font-bold uppercase tracking-widest py-2.5 rounded-lg md:hidden hover:text-white border border-[#2a2a2a]"
+                                >
+                                    Close Calendar
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
 
             <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-24 relative">
 
-                {/* Date Header */}
-                <div className="mb-6 mt-4 md:mt-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-1">Showing Orders for</p>
-                    <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-tight">
-                        {selectedDate ? formatDate(selectedDate + 'T00:00:00') : 'All-time Overview'}
-                    </h2>
-                </div>
+                {/* Only show Header and Top Stats on Analytics and Orders tabs */}
+                {(activeTab === 'analytics' || activeTab === 'orders') && (
+                    <>
+                        {/* Date Header */}
+                        <div className="mb-4 md:mb-6 mt-4 md:mt-0">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#666] mb-1">Showing Orders for</p>
+                            <h2 className="text-lg md:text-xl font-bold text-white uppercase tracking-tight">
+                                {selectedDate ? formatDate(selectedDate + 'T00:00:00') : 'All-time Overview'}
+                            </h2>
+                        </div>
 
-                {/* KPI Stats Grid (Responsive) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">Total packs</p>
-                        <p className="text-2xl font-bold mt-1 text-white">{cards.length}</p>
-                    </div>
-                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
-                            {selectedDate ? 'Total orders' : 'Total orders'}
-                        </p>
-                        <p className="text-2xl font-bold mt-1 text-white">{displayOrders.length}</p>
-                    </div>
-                    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-4 transition-colors hover:border-[#2e2e2e]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#666]">
-                            {selectedDate ? 'Revenue' : 'Revenue'}
-                        </p>
-                        <p className="text-2xl font-bold mt-1 text-[#3e9c35]">
-                            + {formatCurrency(displayRevenue)}
-                        </p>
-                    </div>
-                </div>
+                        {/* KPI Stats Grid (Forced Horizontal on Mobile) */}
+                        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8">
+                            <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-3 md:p-4 transition-colors hover:border-[#2e2e2e]">
+                                <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-[#666] truncate">
+                                    Total packs
+                                </p>
+                                <p className="text-sm md:text-2xl font-bold mt-1 text-white truncate">{cards.length}</p>
+                            </div>
+                            <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-3 md:p-4 transition-colors hover:border-[#2e2e2e]">
+                                <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-[#666] truncate">
+                                    Total orders
+                                </p>
+                                <p className="text-sm md:text-2xl font-bold mt-1 text-white truncate">{displayOrders.length}</p>
+                            </div>
+                            <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-3 md:p-4 transition-colors hover:border-[#2e2e2e]">
+                                <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-[#666] truncate">
+                                    Revenue
+                                </p>
+                                <p className="text-sm md:text-2xl font-bold mt-1 text-[#3e9c35] truncate">
+                                    {formatCurrency(displayRevenue)}
+                                </p>
+                            </div>
+                        </div>
+                    </>
+                )}
 
                 {/* Desktop Tabs */}
                 <div className="hidden md:flex gap-2 mb-6">
@@ -187,17 +241,32 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                     ))}
                 </div>
 
-                {/* Mobile Sticky Bottom Nav (Instagram Style) */}
-                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0C0C0C]/95 backdrop-blur-md border-t border-[#1a1a1a] flex items-center justify-around pb-safe">
-                    {['analytics', 'orders', 'packs', 'add pack'].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`flex-1 py-5 text-[9px] font-bold uppercase tracking-widest transition-all text-center ${activeTab === tab ? 'text-[#C9A844] border-t-2 border-[#C9A844] -mt-[2px]' : 'text-[#666] border-t-2 border-transparent -mt-[2px]'}`}
-                        >
-                            {tab === 'add pack' ? 'Add' : tab}
-                        </button>
-                    ))}
+                {/* Mobile Floating Glass Pill Nav with Slide Animation */}
+                <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-50 bg-[#1a1a1a]/60 backdrop-blur-xl border border-white/10 rounded-full px-2 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                    <div className="relative flex items-center justify-between w-full h-full">
+
+                        {/* THE SLIDING HIGHLIGHTER */}
+                        <div
+                            className="absolute top-0 bottom-0 left-0 w-1/4 bg-[#fff]/20 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-transform duration-300 ease-out pointer-events-none"
+                            style={{
+                                transform: `translateX(${['analytics', 'orders', 'packs', 'add pack'].indexOf(activeTab) * 100}%)`
+                            }}
+                        />
+
+                        {/* THE BUTTON TEXT */}
+                        {['analytics', 'orders', 'packs', 'add pack'].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`relative z-10 flex-1 py-3 px-2 text-[9px] font-bold uppercase tracking-widest transition-colors duration-300 text-center rounded-full ${activeTab === tab
+                                    ? 'text-[#fff]'
+                                    : 'text-[#888] hover:text-white'
+                                    }`}
+                            >
+                                {tab === 'add pack' ? 'Add' : tab}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Tab Content */}
@@ -456,7 +525,7 @@ function CardsTab({ cards, router }) {
                             <button
                                 onClick={() => deleteCard(confirmDeleteId)}
                                 disabled={deletingId === confirmDeleteId}
-                                className="flex-1 bg-red-600 text-white text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-red-700 transition-all disabled:opacity-50"
+                                className="flex-1 bg-red-900/40 border border-red-800/50 text-red-200 text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-red-900/60 hover:text-white transition-all disabled:opacity-50"
                             >
                                 {deletingId === confirmDeleteId ? 'Deleting...' : 'Delete'}
                             </button>
@@ -517,7 +586,7 @@ function CardsTab({ cards, router }) {
                                 <button
                                     onClick={() => setConfirmDeleteId(card.id)}
                                     disabled={deletingId === card.id}
-                                    className="w-full md:w-auto md:ml-auto bg-transparent border border-red-900/40 text-red-500 text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-red-900/20 hover:border-red-500 transition-all disabled:opacity-30 mt-2 md:mt-0"
+                                    className="w-full md:w-auto md:ml-auto bg-red-900/40 border border-red-800/50 text-red-200 text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-red-900/60 hover:text-white transition-all disabled:opacity-30 mt-2 md:mt-0"
                                 >
                                     {deletingId === card.id ? 'Deleting...' : 'Delete'}
                                 </button>

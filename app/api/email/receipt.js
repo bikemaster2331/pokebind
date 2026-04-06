@@ -55,7 +55,7 @@ export async function sendOrderReceipt({ order, items, cards }) {
       <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee;">
         <div style="display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 4px;">
           <span>Subtotal</span>
-          <span>${formatCurrency(order.total)}</span>
+          <span>${formatCurrency((order.total ?? 0) - (order.shipping_fee ?? 0))}</span>
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 8px;">
           <span>Shipping</span>
@@ -63,7 +63,7 @@ export async function sendOrderReceipt({ order, items, cards }) {
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 600;">
           <span>Total</span>
-          <span>${formatCurrency((order.total ?? 0) + (order.shipping_fee ?? 0))}</span>
+          <span>${formatCurrency(order.total)}</span>
         </div>
       </div>
 
