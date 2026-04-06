@@ -98,10 +98,9 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                             Sign out
                         </button>
 
-                        {/* Mobile: Avatar Trigger */}
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="md:hidden w-8 h-8 rounded-full bg-[#C9A844] text-[#0C0C0C] flex items-center justify-center font-bold text-xs border border-white/10"
+                            className="md:hidden w-8 h-8 rounded-full bg-white text-[#0C0C0C] flex items-center justify-center font-bold text-xs border border-white/10"
                         >
                             {user.email[0].toUpperCase()}
                         </button>
@@ -232,7 +231,7 @@ export default function AdminDashboard({ cards, orders, orderItems, user }) {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab
-                                ? 'bg-[#C9A844] text-[#0C0C0C]'
+                                ? 'bg-white text-[#0C0C0C]'
                                 : 'bg-[#1a1a1a] border border-[#2a2a2a] text-[#666] hover:bg-[#222] hover:text-white'
                                 }`}
                         >
@@ -345,13 +344,13 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full md:w-auto appearance-none bg-[#111] border border-[#1a1a1a] text-[10px] font-bold uppercase tracking-widest text-[#aaa] px-4 py-3 md:py-2 rounded-lg outline-none focus:border-[#C9A844] transition-all cursor-pointer pr-10"
+                        className="w-full md:w-auto appearance-none bg-[#111] border border-[#1a1a1a] text-[10px] font-bold uppercase tracking-widest text-[#aaa] px-4 py-3 md:py-2 rounded-lg outline-none focus:border-white/20 transition-all cursor-pointer pr-10"
                     >
                         <option value="all">All Orders</option>
                         <option value="pending">Pending</option>
                         <option value="shipped">Shipped</option>
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#666] group-hover:text-[#C9A844] transition-colors">
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#666] group-hover:text-white transition-colors">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
                         </svg>
@@ -375,22 +374,30 @@ function OrdersTab({ orders, orderItems, cards, router, selectedDate, setSelecte
                                     <div className="flex-1 w-full">
                                         <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <p className="text-md font-bold text-white">Order #{order.id}</p>
-                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
-                                                ? 'bg-green-900/20 text-green-400 border border-green-500/30'
-                                                : order.status === 'cancelled'
-                                                    ? 'bg-red-900/20 text-red-400 border border-red-500/30'
-                                                    : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
-                                                }`}>
-                                                Status: {order.status}
-                                            </span>
-                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.payment_status === 'paid'
-                                                    ? 'bg-green-900/20 text-green-400 border border-green-500/30'
-                                                    : order.payment_status === 'cancelled'
-                                                        ? 'bg-red-900/20 text-red-400 border border-red-500/30'
-                                                        : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
-                                                }`}>
-                                                Payment: {order.payment_status ?? 'unpaid'}
-                                            </span>
+                                            {order.status === 'cancelled' && order.payment_status === 'cancelled' ? (
+                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-red-900/20 text-red-400 border border-red-500/30">
+                                                    Cancelled
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.status === 'shipped'
+                                                        ? 'bg-green-900/20 text-green-400 border border-green-500/30'
+                                                        : order.status === 'cancelled'
+                                                            ? 'bg-red-900/20 text-red-400 border border-red-500/30'
+                                                            : 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
+                                                        }`}>
+                                                        Status: {order.status}
+                                                    </span>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${order.payment_status === 'paid'
+                                                        ? 'bg-green-900/20 text-green-400 border border-green-500/30'
+                                                        : order.payment_status === 'cancelled'
+                                                            ? 'bg-red-900/20 text-red-400 border border-red-500/30'
+                                                            : 'bg-gray-900/20 text-gray-400 border border-gray-500/30'
+                                                        }`}>
+                                                        Payment: {order.payment_status ?? 'unpaid'}
+                                                    </span>
+                                                </>
+                                            )}
                                         </div>
                                         <p className="text-sm text-[#aaa] mt-4 md:mt-6">{order.guest_name} · {order.guest_email}</p>
                                         {order.guest_phone && (
@@ -552,7 +559,7 @@ function CardsTab({ cards, router }) {
                                         <select
                                             value={editForm[key] || 'EN'}
                                             onChange={(e) => setEditForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#C9A844] transition-colors appearance-none cursor-pointer"
+                                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-white/20 transition-colors appearance-none cursor-pointer"
                                         >
                                             <option value="EN">EN</option>
                                             <option value="JPN">JPN</option>
@@ -562,7 +569,7 @@ function CardsTab({ cards, router }) {
                                             type={type}
                                             value={editForm[key] ?? ''}
                                             onChange={(e) => setEditForm((prev) => ({ ...prev, [key]: e.target.value }))}
-                                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#C9A844] transition-colors"
+                                            className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-3 py-1.5 text-sm outline-none focus:border-white/20 transition-colors"
                                         />
                                     )}
                                 </div>
@@ -572,7 +579,7 @@ function CardsTab({ cards, router }) {
                                     <button
                                         onClick={() => saveEdit(card.id)}
                                         disabled={isSaving}
-                                        className="flex-1 md:flex-none bg-[#C9A844] text-[#0C0C0C] text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-yellow-500 disabled:opacity-30"
+                                        className="flex-1 md:flex-none bg-white text-[#0C0C0C] text-xs font-bold uppercase tracking-widest px-4 py-2.5 md:py-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-30"
                                     >
                                         {isSaving ? 'Saving...' : 'Save'}
                                     </button>
@@ -598,7 +605,7 @@ function CardsTab({ cards, router }) {
                                 <p className="text-sm font-bold text-white">{card.name}</p>
                                 <p className="text-xs text-[#888]">{card.set_name} · {card.pack_type}</p>
                                 <div className="flex gap-4 mt-2">
-                                    <p className="text-xs font-bold text-[#C9A844]">{formatCurrency(card.price)}</p>
+                                    <p className="text-xs font-bold text-white">{formatCurrency(card.price)}</p>
                                     <p className={`text-xs font-bold ${card.stock_quantity <= 3 ? 'text-orange-500' : 'text-[#666]'}`}>
                                         Stock: {card.stock_quantity}
                                     </p>
@@ -676,7 +683,7 @@ function AddCardTab({ router }) {
                                 value={form[key] || 'EN'}
                                 onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
                                 required={required}
-                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#C9A844] transition-colors appearance-none cursor-pointer"
+                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-white/20 transition-colors appearance-none cursor-pointer"
                             >
                                 <option value="EN">EN</option>
                                 <option value="JPN">JPN</option>
@@ -688,7 +695,7 @@ function AddCardTab({ router }) {
                                 onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
                                 required={required}
                                 placeholder={placeholder}
-                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#C9A844] transition-colors placeholder-[#333]"
+                                className="w-full bg-[#161616] border border-[#2a2a2a] text-white rounded-lg px-4 py-2.5 text-sm outline-none focus:border-white/20 transition-colors placeholder-[#333]"
                             />
                         )}
                     </div>
@@ -696,7 +703,7 @@ function AddCardTab({ router }) {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#C9A844] text-[#0C0C0C] font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-yellow-500 disabled:opacity-30 text-sm mt-2 transition-all"
+                    className="w-full bg-white text-[#0C0C0C] font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-gray-200 disabled:opacity-30 text-sm mt-2 transition-all"
                 >
                     {isSubmitting ? 'Adding...' : 'Add pack'}
                 </button>
@@ -747,7 +754,7 @@ function AnalyticsTab({ orders, orderItems, cards }) {
         return sortedPacks
     }, [orderItems, cards])
 
-    const PIE_COLORS = ['#C9A844', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899']
+    const PIE_COLORS = ['#ffffff', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899']
 
     // 3. Process Customer Metrics
     const customerMetrics = useMemo(() => {
